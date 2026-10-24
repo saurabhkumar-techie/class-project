@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Articles & Guides | KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% if form %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="mb-4">
+                    <span class="badge bg-success-subtle text-success mb-2 px-3 py-2">
+                        ✍️ कृषि ज्ञान मंच
+                    </span>
+                    <h1 class="h2 mb-1 fw-bold">Publish an Article / Guide</h1>
+                    <p class="text-muted">Share helpful farming techniques, organic tips, or crop guides with the farming community.</p>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <form method="POST" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <div class="mb-3">
+                                {{ form.title.label(class="form-label fw-semibold") }}
+                                {{ form.title(class="form-control form-control-lg", placeholder="e.g. गेहूं की फसल में कल्ले बढ़ाने के वैज्ञानिक तरीके") }}
+                                {% for error in form.title.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    {{ form.category.label(class="form-label fw-semibold") }}
+                                    {{ form.category(class="form-control", placeholder="e.g. Crop Management, Organic Farming") }}
+                                    {% for error in form.category.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ form.language.label(class="form-label fw-semibold") }}
+                                    {{ form.language(class="form-select") }}
+                                    {% for error in form.language.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form.content.label(class="form-label fw-semibold") }}
+                                {{ form.content(class="form-control", rows="10", placeholder="Write detailed agricultural advice, steps, quantities, and tips...") }}
+                                {% for error in form.content.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                {{ form.submit(class="btn btn-success px-4") }}
+                                <a href="{{ url_for('articles') }}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <span class="badge bg-success-subtle text-success mb-2 px-3 py-2">
+                    🌾 किसान ज्ञान केंद्र
+                </span>
+                <h1 class="mb-1 fw-bold">Farmer Learning Centre & Guides</h1>
+                <p class="text-muted mb-0">Practical farming tips, pest management, organic methods, and expert advice.</p>
+            </div>
+
+            {% if current_user.is_authenticated and (current_user.role == "admin" or current_user.role == "farmer") %}
+                <a href="{{ url_for('add_article') }}" class="btn btn-success">
+                    + Share Farming Guide
+                </a>
+            {% endif %}
+        </div>
+
+        {% if articles %}
+            <div class="row g-4">
+                {% for article in articles %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                    <span class="badge bg-success-subtle text-success">
+                                        {{ article.category or "Agriculture" }}
+                                    </span>
+                                    <span class="badge bg-light text-secondary border">
+                                        {{ article.language or "Hindi" }}
+                                    </span>
+                                </div>
+
+                                <h2 class="h5 fw-bold mb-3 text-dark">
+                                    {{ article.title }}
+                                </h2>
+
+                                <p class="text-secondary mb-4 flex-grow-1" style="white-space: pre-line; line-height: 1.6;">
+                                    {{ article.content }}
+                                </p>
+
+                                <div class="pt-3 border-top mt-auto small text-muted d-flex justify-content-between align-items-center">
+                                    <span>
+                                        👨‍🌾 {{ article.author.name if article.author else 'KisanSetu Expert' }}
+                                    </span>
+                                    <span>
+                                        {% if article.created_at %}
+                                            {{ article.created_at.strftime("%d %b %Y") }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="display-3 mb-3">📚</div>
+                    <h2 class="h5 fw-bold">No Articles Published Yet</h2>
+                    <p class="text-muted mb-3">Useful farming articles and agricultural guides will appear here.</p>
+                    {% if current_user.is_authenticated and (current_user.role == "admin" or current_user.role == "farmer") %}
+                        <a href="{{ url_for('add_article') }}" class="btn btn-success">
+                            + Write the First Guide
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Crops | KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1>Manage Crop Listings</h1>
+            <p class="text-muted mb-0">View and manage all farmer crop listings.</p>
+        </div>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    {% if crops %}
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Crop</th>
+                            <th>Farmer</th>
+                            <th>Quantity</th>
+                            <th>Price per Unit</th>
+                            <th>Status</th>
+                            <th>Listed On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for crop in crops %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('crop_detail', crop_id=crop.id) }}"
+                                       class="fw-semibold text-decoration-none">
+                                        {{ crop.name }}
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {{ crop.farmer.name }}
+                                    <div class="small text-muted">{{ crop.farmer.email }}</div>
+                                </td>
+
+                                <td>{{ crop.quantity }} {{ crop.unit }}</td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(crop.price_per_unit) }}
+                                    <span class="small text-muted">/ {{ crop.unit }}</span>
+                                </td>
+
+                                <td>
+                                    {% if crop.status == "active" %}
+                                        <span class="badge text-bg-success">Active</span>
+                                    {% elif crop.status == "hidden" %}
+                                        <span class="badge text-bg-secondary">Hidden</span>
+                                    {% elif crop.status == "sold" %}
+                                        <span class="badge text-bg-primary">Sold</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">{{ crop.status }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if crop.created_at %}
+                                        {{ crop.created_at.strftime("%d %b %Y") }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if crop.status == "sold" %}
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                            Sold
+                                        </button>
+                                    {% else %}
+                                        <form method="POST"
+                                              action="{{ url_for('admin_toggle_crop', crop_id=crop.id) }}"
+                                              onsubmit="return confirm('Are you sure you want to change this crop listing status?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                            {% if crop.status == "active" %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    Hide Listing
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    Activate Listing
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <h2 class="h5">No crop listings found</h2>
+                <p class="text-muted mb-0">Crop listings will appear here when farmers add them.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,311 @@
+
+{% extends "base.html" %}
+
+{% block title %}Buyer Dashboard - KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Welcome Section -->
+    <div class="dashboard-welcome mb-4">
+        <div>
+            <p class="text-success fw-semibold mb-1">BUYER DASHBOARD</p>
+            <h1 class="fw-bold">Welcome, {{ current_user.name }}! 🛒</h1>
+            <p class="text-muted mb-0">
+                Discover fresh crops directly from farmers and manage your orders.
+            </p>
+        </div>
+
+        <a href="{{ url_for('crop_list') }}" class="btn btn-success mt-3 mt-md-0">
+            Browse Crops
+        </a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card h-100">
+                <div class="card-body">
+                    <div class="stat-icon">🌾</div>
+                    <p class="text-muted mb-1">Explore Crops</p>
+                    <h5 class="fw-bold">Fresh from Farmers</h5>
+                    <a href="{{ url_for('crop_list') }}" class="text-success">
+                        Find crops →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card h-100">
+                <div class="card-body">
+                    <div class="stat-icon">📦</div>
+                    <p class="text-muted mb-1">My Orders</p>
+                    <h5 class="fw-bold">Track Your Orders</h5>
+                    <a href="{{ url_for('my_orders') }}" class="text-success">
+                        View orders →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card h-100">
+                <div class="card-body">
+                    <div class="stat-icon">💬</div>
+                    <p class="text-muted mb-1">Need Assistance?</p>
+                    <h5 class="fw-bold">We're Here to Help</h5>
+                    <a href="{{ url_for('help_requests') }}" class="text-success">
+                        Get support →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-3">Quick Actions</h4>
+
+            <div class="row g-3">
+
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('crop_list') }}" class="quick-action-link">
+                        <span>🔍</span>
+                        <span>Find Crops</span>
+                    </a>
+                </div>
+
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('my_orders') }}" class="quick-action-link">
+                        <span>📦</span>
+                        <span>My Orders</span>
+                    </a>
+                </div>
+
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('help_requests') }}" class="quick-action-link">
+                        <span>🤝</span>
+                        <span>Get Help</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Crops -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h4 class="fw-bold mb-1">Explore Available Crops</h4>
+                    <p class="text-muted mb-0">
+                        Find products listed by farmers.
+                    </p>
+                </div>
+
+                <a href="{{ url_for('crop_list') }}" class="text-success">
+                    View All
+                </a>
+            </div>
+
+            {% if crops %}
+                <div class="row g-3">
+
+                    {% for crop in crops[:6] %}
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="card crop-card h-100">
+
+                            {% if crop.image_filename %}
+                                <img
+                                    src="{{ url_for('static', filename='uploads/' ~ crop.image_filename) }}"
+                                    class="card-img-top crop-card-image"
+                                    alt="{{ crop.name }}"
+                                >
+                            {% else %}
+                                <div class="crop-placeholder">
+                                    <span>🌾</span>
+                                </div>
+                            {% endif %}
+
+                            <div class="card-body d-flex flex-column">
+
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="fw-bold mb-0">{{ crop.name }}</h5>
+                                    <span class="badge bg-success">Available</span>
+                                </div>
+
+                                <p class="text-muted small mb-2">
+                                    Farmer:
+                                    {{ crop.farmer.name if crop.farmer else 'Farmer' }}
+                                </p>
+
+                                <p class="mb-2">
+                                    <strong>Quantity:</strong>
+                                    {{ crop.quantity }} {{ crop.unit }}
+                                </p>
+
+                                <h5 class="text-success fw-bold mb-3">
+                                    ₹{{ "%.2f"|format(crop.price_per_unit) }}
+                                    <small class="text-muted fs-6">
+                                        / {{ crop.unit }}
+                                    </small>
+                                </h5>
+
+                                <a
+                                    href="{{ url_for('crop_detail', crop_id=crop.id) }}"
+                                    class="btn btn-outline-success mt-auto"
+                                >
+                                    View Details
+                                </a>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="display-4">🌱</div>
+                    <h5 class="fw-bold mt-3">No crops available right now</h5>
+                    <p class="text-muted">
+                        Please check again later for new crop listings.
+                    </p>
+                    <a href="{{ url_for('crop_list') }}" class="btn btn-success">
+                        Browse All Crops
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0">My Recent Orders</h4>
+                <a href="{{ url_for('my_orders') }}" class="text-success">
+                    View All
+                </a>
+            </div>
+
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for order in orders[:5] %}
+                            <tr>
+
+                                <td class="fw-semibold">
+                                    {{ order.crop.name if order.crop else 'Crop unavailable' }}
+                                </td>
+
+                                <td>{{ order.quantity }}</td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(order.total_amount) }}
+                                </td>
+
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">
+                                            Pending
+                                        </span>
+                                    {% elif order.status == 'accepted' %}
+                                        <span class="badge bg-success">
+                                            Accepted
+                                        </span>
+                                    {% elif order.status == 'rejected' %}
+                                        <span class="badge bg-danger">
+                                            Rejected
+                                        </span>
+                                    {% elif order.status == 'completed' %}
+                                        <span class="badge bg-primary">
+                                            Completed
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            {{ order.status|title }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <div class="display-4">📦</div>
+                    <h5 class="fw-bold mt-2">No orders placed yet</h5>
+                    <p class="text-muted">
+                        Explore available crops and place your first order.
+                    </p>
+                    <a href="{{ url_for('crop_list') }}" class="btn btn-success">
+                        Find Crops
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Additional Resources -->
+    <div class="row g-3">
+
+        <div class="col-md-6">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">📚 Farming Articles</h5>
+                    <p class="text-muted">
+                        Read useful information about crops, farming and agriculture.
+                    </p>
+                    <a href="{{ url_for('articles') }}" class="btn btn-outline-success">
+                        Read Articles
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">🏛️ Government Schemes</h5>
+                    <p class="text-muted">
+                        Explore agricultural schemes and support information.
+                    </p>
+                    <a href="{{ url_for('schemes') }}" class="btn btn-outline-success">
+                        Explore Schemes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

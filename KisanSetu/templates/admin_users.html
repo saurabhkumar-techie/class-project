@@ -1,0 +1,138 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Users - KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <span class="badge bg-success-subtle text-success mb-2">
+                Administration
+            </span>
+            <h1 class="fw-bold mb-2">Manage Users</h1>
+            <p class="text-muted mb-0">
+                View registered farmers and buyers on KisanSetu.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-success">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Users</p>
+                    <h3 class="fw-bold mb-0">{{ users|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Farmers</p>
+                    <h3 class="fw-bold mb-0">
+                        {{ users|selectattr('role', 'equalto', 'farmer')|list|length }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Buyers</p>
+                    <h3 class="fw-bold mb-0">
+                        {{ users|selectattr('role', 'equalto', 'buyer')|list|length }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-3">Registered Users</h4>
+
+            {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Phone</th>
+                                <th>Location</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+
+                                    <td class="fw-semibold">
+                                        {{ user.name }}
+                                    </td>
+
+                                    <td>{{ user.email }}</td>
+
+                                    <td>
+                                        {% if user.role == 'admin' %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% elif user.role == 'farmer' %}
+                                            <span class="badge bg-success">Farmer</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">Buyer</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ user.phone or '-' }}</td>
+
+                                    <td>
+                                        {% if user.village %}
+                                            {{ user.village }}{% if user.district %}, {{ user.district }}{% endif %}
+                                        {% elif user.district %}
+                                            {{ user.district }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if user.created_at %}
+                                            {{ user.created_at.strftime('%d %b %Y') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="display-4 mb-3">👥</div>
+                    <h5 class="fw-bold">No Users Found</h5>
+                    <p class="text-muted mb-0">
+                        Registered users will appear here.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

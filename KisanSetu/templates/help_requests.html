@@ -1,0 +1,143 @@
+
+{% extends "base.html" %}
+
+{% block title %}Help and Support | KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4">
+        <h1>Help and Support</h1>
+        <p class="text-muted">Submit a question or check the status of your request.</p>
+    </div>
+
+    {% if current_user.role != "admin" %}
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body p-4">
+                <h2 class="h4 mb-3">Submit a Help Request</h2>
+
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.subject.label(class="form-label") }}
+                        {{ form.subject(class="form-control", placeholder="Enter your subject") }}
+                        {% for error in form.subject.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-select") }}
+                        {% for error in form.category.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="5", placeholder="Describe your problem in detail") }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-success") }}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <h2 class="h4 mb-3">
+        {% if current_user.role == "admin" %}
+            All Help Requests
+        {% else %}
+            My Help Requests
+        {% endif %}
+    </h2>
+
+    {% if requests %}
+        <div class="d-flex flex-column gap-4">
+            {% for help_item in requests %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                            <div>
+                                <h3 class="h5 mb-1">{{ help_item.subject }}</h3>
+                                <span class="text-muted small">
+                                    Category: {{ help_item.category or "Other" }}
+                                </span>
+                                {% if current_user.role == "admin" %}
+                                    <div class="small text-muted mt-1">
+                                        Submitted by: {{ help_item.user.name }} ({{ help_item.user.email }})
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if help_item.status == "resolved" %}
+                                <span class="badge text-bg-success align-self-start">Resolved</span>
+                            {% elif help_item.status == "in_progress" %}
+                                <span class="badge text-bg-primary align-self-start">In Progress</span>
+                            {% else %}
+                                <span class="badge text-bg-warning align-self-start">Open</span>
+                            {% endif %}
+                        </div>
+
+                        <p style="white-space: pre-line;">{{ help_item.description }}</p>
+
+                        {% if help_item.admin_response %}
+                            <div class="alert alert-light border mb-3">
+                                <strong>Admin Response</strong>
+                                <p class="mb-0 mt-1" style="white-space: pre-line;">{{ help_item.admin_response }}</p>
+                            </div>
+                        {% endif %}
+
+                        <p class="small text-muted mb-3">
+                            Submitted:
+                            {{ help_item.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                        </p>
+
+                        {% if current_user.role == "admin" %}
+                            <hr>
+
+                            <form method="POST"
+                                  action="{{ url_for('update_help_request', request_id=help_item.id) }}">
+                                {{ response_form.hidden_tag() }}
+
+                                <div class="mb-3">
+                                    {{ response_form.status.label(class="form-label") }}
+                                    <select name="status" class="form-select" required>
+                                        <option value="open" {% if help_item.status == "open" %}selected{% endif %}>Open</option>
+                                        <option value="in_progress" {% if help_item.status == "in_progress" %}selected{% endif %}>In Progress</option>
+                                        <option value="resolved" {% if help_item.status == "resolved" %}selected{% endif %}>Resolved</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ response_form.admin_response.label(class="form-label") }}
+                                    <textarea name="admin_response"
+                                              class="form-control"
+                                              rows="3"
+                                              maxlength="3000"
+                                              placeholder="Write a response for the user">{{ help_item.admin_response or "" }}</textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">
+                                    Update Request
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <h3 class="h5">No help requests found</h3>
+                <p class="text-muted mb-0">Your requests will appear here.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

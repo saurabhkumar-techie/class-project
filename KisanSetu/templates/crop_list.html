@@ -1,0 +1,93 @@
+
+{% extends "base.html" %}
+
+{% block title %}Browse Crops | KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4">
+        <h1>Browse Crops</h1>
+        <p class="text-muted">Find crops listed by farmers.</p>
+    </div>
+
+    <form method="GET" action="{{ url_for('crop_list') }}" class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-7">
+                    <label for="q" class="form-label">Search crops</label>
+                    <input type="search"
+                           id="q"
+                           name="q"
+                           class="form-control"
+                           value="{{ search }}"
+                           placeholder="Enter crop name or keyword">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="sort" class="form-label">Sort by</label>
+                    <select id="sort" name="sort" class="form-select">
+                        <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest first</option>
+                        <option value="price_low" {% if sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                        <option value="name" {% if sort == "name" %}selected{% endif %}>Crop Name</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-success">Search</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if crops %}
+        <div class="row g-4">
+            {% for crop in crops %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <span class="badge text-bg-success mb-3">Available</span>
+                            <h2 class="h5">{{ crop.name }}</h2>
+
+                            <p class="text-muted small mb-2">
+                                Farmer: {{ crop.farmer.name }}
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Quantity:</strong>
+                                {{ crop.quantity }} {{ crop.unit }}
+                            </p>
+
+                            <p class="mb-3">
+                                <strong>Price:</strong>
+                                ₹{{ "%.2f"|format(crop.price_per_unit) }} / {{ crop.unit }}
+                            </p>
+
+                            {% if crop.quality %}
+                                <p class="small text-muted">Quality: {{ crop.quality }}</p>
+                            {% endif %}
+
+                            {% if crop.description %}
+                                <p>{{ crop.description|truncate(120) }}</p>
+                            {% endif %}
+
+                            <a href="{{ url_for('crop_detail', crop_id=crop.id) }}"
+                               class="btn btn-outline-success w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <h2 class="h5">No crops found</h2>
+                <p class="text-muted">Try another search term or check back later.</p>
+                <a href="{{ url_for('crop_list') }}" class="btn btn-success">Show All Crops</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

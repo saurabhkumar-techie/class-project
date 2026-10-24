@@ -1,0 +1,206 @@
+
+{% extends "base.html" %}
+
+{% block title %}Add New Crop - KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <a href="{{ url_for('farmer_dashboard') }}"
+           class="text-success text-decoration-none">
+            ← Back to Dashboard
+        </a>
+
+        <p class="text-success fw-semibold mt-3 mb-1">FARMER MARKETPLACE</p>
+        <h1 class="fw-bold">Add a New Crop 🌱</h1>
+        <p class="text-muted">
+            Add your crop details to connect with buyers directly.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Crop Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+
+                    <h4 class="fw-bold mb-4">Crop Information</h4>
+
+                    <form method="POST"
+                          action="{{ url_for('add_crop') }}"
+                          enctype="multipart/form-data">
+
+                        {{ form.hidden_tag() }}
+
+                        <!-- Crop Name -->
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-semibold") }}
+
+                            {{ form.name(
+                                class="form-control",
+                                placeholder="e.g. Wheat, Rice, Tomato"
+                            ) }}
+
+                            {% for error in form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Quantity and Unit -->
+                        <div class="row g-3">
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.quantity.label(class="form-label fw-semibold") }}
+
+                                {{ form.quantity(
+                                    class="form-control",
+                                    placeholder="Enter quantity",
+                                    min="0.01",
+                                    step="any"
+                                ) }}
+
+                                {% for error in form.quantity.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.unit.label(class="form-label fw-semibold") }}
+
+                                {{ form.unit(class="form-select") }}
+
+                                {% for error in form.unit.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            {{ form.price_per_unit.label(class="form-label fw-semibold") }}
+
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+
+                                {{ form.price_per_unit(
+                                    class="form-control",
+                                    placeholder="Enter price per unit",
+                                    min="0.01",
+                                    step="any"
+                                ) }}
+                            </div>
+
+                            {% for error in form.price_per_unit.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Quality -->
+                        <div class="mb-3">
+                            {{ form.quality.label(class="form-label fw-semibold") }}
+
+                            {{ form.quality(
+                                class="form-control",
+                                placeholder="e.g. Premium, Grade A, Organic"
+                            ) }}
+
+                            {% for error in form.quality.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+
+                            {{ form.description(
+                                class="form-control",
+                                rows="5",
+                                placeholder="Describe your crop, harvesting details, and other useful information..."
+                            ) }}
+
+                            {% for error in form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-flex flex-wrap gap-2">
+                            {{ form.submit(
+                                class="btn btn-success btn-lg",
+                                value="Publish Crop"
+                            ) }}
+
+                            <a href="{{ url_for('my_crops') }}"
+                               class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Helpful Information -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">💡 Listing Tips</h5>
+
+                    <ul class="text-muted ps-3 mb-0">
+                        <li class="mb-2">
+                            Enter the correct crop name.
+                        </li>
+                        <li class="mb-2">
+                            Mention the actual quantity available.
+                        </li>
+                        <li class="mb-2">
+                            Set a fair price per unit.
+                        </li>
+                        <li class="mb-2">
+                            Describe the crop quality honestly.
+                        </li>
+                        <li>
+                            Keep your listing information updated.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-light">
+                <div class="card-body p-4">
+                    <div class="display-5 mb-3">🤝</div>
+                    <h5 class="fw-bold">Sell Directly to Buyers</h5>
+
+                    <p class="text-muted mb-0">
+                        KisanSetu helps farmers display their produce so buyers
+                        can discover available crops and send order requests.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

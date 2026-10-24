@@ -1,0 +1,172 @@
+
+{% extends "base.html" %}
+
+{% block title %}Create Account | KisanSetu{% endblock %}
+
+{% block content %}
+<section class="auth-section py-5">
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-4">
+
+            <div class="col-lg-5">
+                <div class="auth-intro pe-lg-4">
+                    <span class="badge bg-success-subtle text-success mb-3 px-3 py-2">
+                        🌱 Join Our Community
+                    </span>
+
+                    <h1 class="display-5 fw-bold mb-3">
+                        Grow With <span class="text-success">KisanSetu</span>
+                    </h1>
+
+                    <p class="text-secondary lead">
+                        Create your account to explore farming opportunities,
+                        connect with buyers and access useful resources.
+                    </p>
+
+                    <div class="auth-benefit mt-4">
+                        <p>🌾 Farmers can list and manage their crops.</p>
+                        <p>🛒 Buyers can browse crops and request orders.</p>
+                        <p>📚 Everyone can explore farming guides and schemes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-9">
+                <div class="auth-card p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div class="auth-icon mb-3">👨‍🌾</div>
+                        <h2 class="fw-bold">Create Account</h2>
+                        <p class="text-secondary">
+                            Fill in your details to get started.
+                        </p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('register') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label fw-semibold") }}
+                            {{ form.name(
+                                class="form-control",
+                                placeholder="Enter your full name",
+                                autocomplete="name"
+                            ) }}
+
+                            {% for error in form.name.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+                            {{ form.email(
+                                class="form-control",
+                                placeholder="Enter your email address",
+                                autocomplete="email"
+                            ) }}
+
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.role.label(class="form-label fw-semibold") }}
+                            {{ form.role(class="form-select") }}
+
+                            {% for error in form.role.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.password.label(class="form-label fw-semibold") }}
+                                {{ form.password(
+                                    class="form-control",
+                                    placeholder="At least 8 characters",
+                                    autocomplete="new-password"
+                                ) }}
+
+                                {% for error in form.password.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.confirm_password.label(class="form-label fw-semibold") }}
+                                {{ form.confirm_password(
+                                    class="form-control",
+                                    placeholder="Confirm password",
+                                    autocomplete="new-password"
+                                ) }}
+
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">Contact & Location (Optional)</h6>
+
+                        <div class="mb-3">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(
+                                class="form-control",
+                                placeholder="Phone number",
+                                autocomplete="tel"
+                            ) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.village.label(class="form-label") }}
+                            {{ form.village(
+                                class="form-control",
+                                placeholder="Village or town"
+                            ) }}
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                {{ form.district.label(class="form-label") }}
+                                {{ form.district(
+                                    class="form-control",
+                                    placeholder="District"
+                                ) }}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.state.label(class="form-label") }}
+                                {{ form.state(
+                                    class="form-control",
+                                    placeholder="State"
+                                ) }}
+                            </div>
+                        </div>
+
+                        {{ form.submit(
+                            class="btn btn-success btn-lg w-100",
+                            value="Create My Account"
+                        ) }}
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-secondary mb-0">
+                            Already have an account?
+                            <a href="{{ url_for('login') }}"
+                               class="text-success fw-bold text-decoration-none">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

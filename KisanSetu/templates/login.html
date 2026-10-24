@@ -1,0 +1,100 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login | KisanSetu{% endblock %}
+
+{% block content %}
+<section class="auth-section py-5">
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-4">
+
+            <div class="col-lg-5">
+                <div class="auth-intro pe-lg-4">
+                    <span class="badge bg-success-subtle text-success mb-3 px-3 py-2">
+                        🌾 Welcome Back
+                    </span>
+
+                    <h1 class="display-5 fw-bold mb-3">
+                        Welcome to <span class="text-success">KisanSetu</span>
+                    </h1>
+
+                    <p class="text-secondary lead">
+                        Your farming journey, marketplace and support resources
+                        are just one login away.
+                    </p>
+
+                    <div class="auth-benefit mt-4">
+                        <p>✓ Manage your account securely</p>
+                        <p>✓ Connect with farmers and buyers</p>
+                        <p>✓ Explore schemes and farming resources</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-8">
+                <div class="auth-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="auth-icon mb-3">🌱</div>
+                        <h2 class="fw-bold">Sign In</h2>
+                        <p class="text-secondary">
+                            Enter your account details below.
+                        </p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('login') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+
+                            {{ form.email(
+                                class="form-control form-control-lg",
+                                placeholder="Enter your email",
+                                autocomplete="email"
+                            ) }}
+
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.password.label(class="form-label fw-semibold") }}
+
+                            {{ form.password(
+                                class="form-control form-control-lg",
+                                placeholder="Enter your password",
+                                autocomplete="current-password"
+                            ) }}
+
+                            {% for error in form.password.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        {{ form.submit(class="btn btn-success btn-lg w-100") }}
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-secondary mb-0">
+                            Don't have an account?
+                            <a href="{{ url_for('register') }}"
+                               class="text-success fw-bold text-decoration-none">
+                                Create Account
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('index') }}"
+                           class="text-secondary text-decoration-none small">
+                            ← Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

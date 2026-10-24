@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Government Schemes | KisanSetu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Header Section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <span class="badge bg-success-subtle text-success mb-2 px-3 py-2">
+                🏛️ सरकारी कृषि योजनाएं
+            </span>
+            <h1 class="fw-bold mb-2">Government Schemes for Farmers</h1>
+            <p class="text-muted mb-0">
+                Explore financial support, subsidies, crop insurance, and welfare schemes designed for Indian farmers.
+            </p>
+        </div>
+
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+            <a href="{{ url_for('add_scheme') }}" class="btn btn-success">
+                + Add New Scheme
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Schemes Grid -->
+    {% if schemes %}
+        <div class="row g-4">
+            {% for scheme in schemes %}
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm scheme-card p-2">
+                        <div class="card-body d-flex flex-column p-4">
+                            
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                <span class="badge bg-success-subtle text-success">
+                                    🏛️ Govt Scheme
+                                </span>
+                                {% if scheme.official_url %}
+                                    <span class="badge bg-light text-secondary border">
+                                        Verified Portal
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="h5 fw-bold text-dark mb-2">
+                                {{ scheme.name }}
+                            </h3>
+
+                            <p class="text-secondary mb-3 flex-grow-1" style="line-height: 1.6;">
+                                {{ scheme.description|truncate(180) }}
+                            </p>
+
+                            {% if scheme.eligibility %}
+                                <div class="bg-light rounded p-3 mb-3 small">
+                                    <strong class="text-success d-block mb-1">
+                                        ✓ पात्रता (Eligibility):
+                                    </strong>
+                                    <span class="text-secondary">
+                                        {{ scheme.eligibility|truncate(120) }}
+                                    </span>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-flex flex-wrap gap-2 mt-auto pt-2 border-top">
+                                <a href="{{ url_for('scheme_detail', scheme_id=scheme.id) }}"
+                                   class="btn btn-success flex-grow-1">
+                                    View Full Details →
+                                </a>
+
+                                {% if scheme.official_url %}
+                                    <a href="{{ scheme.official_url }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-outline-secondary"
+                                       title="Official Website">
+                                        Portal ↗
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="display-3 mb-3">🏛️</div>
+                <h3 class="h5 fw-bold">No Government Schemes Available Yet</h3>
+                <p class="text-muted mb-3">
+                    Verified agricultural schemes and benefits will be updated here shortly.
+                </p>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <a href="{{ url_for('add_scheme') }}" class="btn btn-success">
+                        + Add the First Scheme
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-success">
+                        Back to Home
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

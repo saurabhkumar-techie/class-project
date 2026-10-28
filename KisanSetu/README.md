@@ -56,8 +56,11 @@
 | Role | Email | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@kisansetu.in` | `ChangeThisAdmin123!` |
-| **Farmer** | `rameshwar.farmer@kisansetu.in` | `Farmer@12345` |
+| **Farmer** | `saurabhkumar11022007@gmail.com` | `Farmer@12345` |
 | **Buyer** | `buyer@kisansetu.in` | `Buyer@12345` |
+
+> **Note:** The farmer account uses the email registered during first-run setup.
+> If you are running a fresh install (no existing DB), the default seeded farmer email will be `rameshwar.farmer@kisansetu.in` with password `Farmer@12345`.
 
 ---
 

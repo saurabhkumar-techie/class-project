@@ -1,4 +1,4 @@
-
+import os
 from datetime import datetime
 
 from flask_login import UserMixin
@@ -69,6 +69,38 @@ class Crop(db.Model):
 
     farmer = db.relationship("User", back_populates="crops")
     orders = db.relationship("Order", back_populates="crop")
+
+    @property
+    def image_url(self):
+        """Returns the appropriate clean image URL/path for the crop."""
+        if self.image_filename:
+            if self.image_filename.startswith(("http://", "https://", "/")):
+                return self.image_filename
+            crops_dir = os.path.join(os.path.dirname(__file__), "static", "images", "crops")
+            if os.path.exists(os.path.join(crops_dir, self.image_filename)):
+                return f"/static/images/crops/{self.image_filename}"
+            return f"/static/uploads/{self.image_filename}"
+
+        # Smart automatic image matching based on crop name (Hindi & English keywords)
+        name_lower = (self.name or "").lower()
+        if any(w in name_lower for w in ["wheat", "गेहूं", "gehu", "sharbati"]):
+            return "/static/images/crops/wheat.jpg"
+        elif any(w in name_lower for w in ["paddy", "rice", "धान", "चावल", "basmati"]):
+            return "/static/images/crops/rice.jpg"
+        elif any(w in name_lower for w in ["mustard", "सरसों", "sarson", "mustard oil"]):
+            return "/static/images/crops/mustard.jpg"
+        elif any(w in name_lower for w in ["tomato", "टमाटर", "tamatar"]):
+            return "/static/images/crops/tomato.jpg"
+        elif any(w in name_lower for w in ["potato", "आलू", "aloo"]):
+            return "/static/images/crops/potato.jpg"
+        elif any(w in name_lower for w in ["onion", "प्याज", "प्याज़"]):
+            return "/static/images/crops/onion.jpg"
+        elif any(w in name_lower for w in ["corn", "मक्का", "maize", "makka"]):
+            return "/static/images/crops/corn.jpg"
+        elif any(w in name_lower for w in ["mango", "आम"]):
+            return "/static/images/crops/mango.jpg"
+
+        return "/static/images/crops/default_crop.jpg"
 
 
 class Order(db.Model):

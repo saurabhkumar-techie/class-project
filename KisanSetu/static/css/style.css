@@ -645,3 +645,99 @@ footer a:hover {
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1); }
 }
+
+
+/* =========================================
+   Enhanced Product & Crop Card Styling
+   ========================================= */
+.crop-card {
+    border-radius: 16px !important;
+    border: 1px solid #e3ece5 !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    box-shadow: 0 4px 14px rgba(24, 65, 38, 0.05) !important;
+}
+
+.crop-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 14px 30px rgba(24, 65, 38, 0.12) !important;
+}
+
+.crop-img-container {
+    width: 100%;
+    height: 200px;
+    background-color: #edf5ef;
+    position: relative;
+    overflow: hidden;
+}
+
+.crop-card-img,
+.crop-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.crop-card:hover .crop-card-img,
+.crop-card:hover img {
+    transform: scale(1.06);
+}
+
+.crop-quality-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #198754;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+    letter-spacing: 0.3px;
+}
+
+.crop-quantity-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: rgba(18, 38, 24, 0.82);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.crop-placeholder {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eaf6ee, #f3f9f4);
+    font-size: 3rem;
+}
+
+.crop-detail-img-box {
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #edf5ef;
+    border: 1px solid #e3ece5;
+    box-shadow: 0 8px 24px rgba(24, 65, 38, 0.08);
+}
+
+.crop-detail-img {
+    width: 100%;
+    height: 100%;
+    min-height: 380px;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+}

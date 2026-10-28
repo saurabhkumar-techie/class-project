@@ -42,17 +42,20 @@
 
                     <div class="card crop-card h-100">
 
-                        {% if crop.image_filename %}
+                        <div class="crop-img-container">
                             <img
-                                src="{{ url_for('static', filename='uploads/' ~ crop.image_filename) }}"
+                                src="{{ crop.image_url }}"
                                 alt="{{ crop.name }}"
-                                class="card-img-top crop-card-image"
+                                class="crop-card-img"
+                                loading="lazy"
                             >
-                        {% else %}
-                            <div class="crop-placeholder">
-                                <span>🌾</span>
-                            </div>
-                        {% endif %}
+                            <span class="crop-quality-badge">
+                                {{ crop.quality or "Farm Fresh" }}
+                            </span>
+                            <span class="crop-quantity-badge">
+                                {{ crop.quantity }} {{ crop.unit }}
+                            </span>
+                        </div>
 
                         <div class="card-body d-flex flex-column">
 

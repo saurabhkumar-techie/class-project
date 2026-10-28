@@ -27,21 +27,19 @@
 
         <!-- Crop Image -->
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-
-                {% if crop.image_filename %}
-                    <img
-                        src="{{ url_for('static', filename='uploads/' ~ crop.image_filename) }}"
-                        alt="{{ crop.name }}"
-                        class="crop-detail-image"
-                    >
-                {% else %}
-                    <div class="crop-detail-placeholder">
-                        <span>🌾</span>
-                        <p class="mb-0">Crop Image</p>
-                    </div>
-                {% endif %}
-
+            <div class="crop-detail-img-box h-100 position-relative">
+                <img
+                    src="{{ crop.image_url }}"
+                    alt="{{ crop.name }}"
+                    class="crop-detail-img"
+                    loading="lazy"
+                >
+                <span class="crop-quality-badge">
+                    {{ crop.quality or "Farm Fresh" }}
+                </span>
+                <span class="crop-quantity-badge">
+                    Available: {{ crop.quantity }} {{ crop.unit }}
+                </span>
             </div>
         </div>
 

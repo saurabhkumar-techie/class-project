@@ -29,78 +29,70 @@ html {
 }
 
 body {
+    position: relative;
     margin: 0;
     font-family: 'Inter', Arial, sans-serif;
     color: var(--text-color);
-    background-color: #f5f8f4;
-    background-image:
-        radial-gradient(ellipse at 8% 12%, rgba(216, 238, 219, .52), transparent 34%),
-        radial-gradient(ellipse at 94% 62%, rgba(231, 240, 218, .42), transparent 31%);
-    background-attachment: fixed;
+    background-color: #f4f7f2;
     line-height: 1.6;
 }
 
-body[data-page="crop_list"],
-body[data-page="crop_detail"],
-body[data-page="add_crop"],
-body[data-page="edit_crop"],
-body[data-page="my_crops"],
-body[data-page="admin_crops"],
-body[data-page="manage_orders"],
-body[data-page="my_orders"],
-body[data-page="place_order"],
-body[data-page="update_order"] {
+.page-backdrop {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 460px;
+    background-color: #f4f7f2;
     background-image:
-        linear-gradient(rgba(247, 251, 247, .91), rgba(247, 251, 247, .94)),
-        url("../images/crops/wheat.jpg");
-    background-position: center, center;
+        linear-gradient(180deg, var(--page-wash, rgba(244, 247, 242, .56)) 0%, rgba(244, 247, 242, .66) 46%, #f4f7f2 100%),
+        var(--page-scene, none);
+    background-position: center, var(--page-scene-position, center 44%);
     background-size: cover;
-    background-attachment: fixed;
+    pointer-events: none;
 }
 
-body[data-page="schemes"],
-body[data-page="scheme_detail"],
-body[data-page="add_scheme"] {
-    background-image:
-        linear-gradient(rgba(250, 250, 239, .9), rgba(247, 250, 242, .94)),
-        url("../images/farm-hero.jpg");
-    background-position: center, center 58%;
-    background-size: cover;
-    background-attachment: fixed;
+nav.navbar,
+main,
+footer {
+    position: relative;
+    z-index: 1;
 }
 
-body[data-page="articles"],
-body[data-page="add_article"] {
-    background-image:
-        linear-gradient(rgba(249, 250, 239, .91), rgba(247, 250, 242, .95)),
-        url("../images/crops/corn.jpg");
-    background-position: center, center;
-    background-size: cover;
-    background-attachment: fixed;
-}
-
-body[data-page="login"],
-body[data-page="register"],
-body[data-page="farmer_dashboard"],
-body[data-page="buyer_dashboard"],
-body[data-page="dashboard"],
-body[data-page="admin_dashboard"],
-body[data-page="admin_users"],
-body[data-page="disease_detector"],
-body[data-page="help_requests"],
-body[data-page="update_help_request"] {
-    background-image:
-        linear-gradient(rgba(244, 250, 245, .91), rgba(244, 250, 245, .95)),
-        url("../images/farm-hero.jpg");
-    background-position: center, center 62%;
-    background-size: cover;
-    background-attachment: fixed;
-}
+/* Each route gets a distinct, locally hosted scene and a complementary color wash. */
+body[data-page="index"] { --page-scene: url("../images/farm-hero.jpg"); --page-wash: rgba(224, 240, 225, .5); --page-scene-position: center 58%; }
+body[data-page="crop_list"] { --page-scene: url("../images/crops/tomato.jpg"); --page-wash: rgba(230, 244, 232, .5); --page-scene-position: 50% 34%; }
+body[data-page="crop_detail"] { --page-scene: url("../images/crops/wheat.jpg"); --page-wash: rgba(243, 236, 216, .5); --page-scene-position: 50% 42%; }
+body[data-page="add_crop"] { --page-scene: url("../images/crops/corn.jpg"); --page-wash: rgba(231, 242, 216, .5); --page-scene-position: 50% 40%; }
+body[data-page="edit_crop"] { --page-scene: url("../images/crops/rice.jpg"); --page-wash: rgba(224, 238, 242, .5); --page-scene-position: 50% 42%; }
+body[data-page="my_crops"] { --page-scene: url("../images/crops/potato.jpg"); --page-wash: rgba(238, 240, 219, .5); --page-scene-position: 50% 38%; }
+body[data-page="admin_crops"] { --page-scene: url("../images/crops/onion.jpg"); --page-wash: rgba(242, 227, 236, .5); --page-scene-position: 50% 38%; }
+body[data-page="manage_orders"] { --page-scene: url("../images/crops/mango.jpg"); --page-wash: rgba(244, 235, 213, .5); --page-scene-position: 50% 40%; }
+body[data-page="my_orders"] { --page-scene: url("../images/crops/default_crop.jpg"); --page-wash: rgba(224, 238, 225, .5); --page-scene-position: 50% 52%; }
+body[data-page="place_order"] { --page-scene: url("../images/crops/tomato.jpg"); --page-wash: rgba(244, 229, 219, .5); --page-scene-position: 50% 60%; }
+body[data-page="update_order"] { --page-scene: url("../images/crops/corn.jpg"); --page-wash: rgba(222, 237, 241, .5); --page-scene-position: 50% 56%; }
+body[data-page="schemes"] { --page-scene: url("../images/farm-hero.jpg"); --page-wash: rgba(248, 239, 211, .5); --page-scene-position: 50% 55%; }
+body[data-page="scheme_detail"] { --page-scene: url("../images/crops/wheat.jpg"); --page-wash: rgba(230, 239, 214, .5); --page-scene-position: 50% 32%; }
+body[data-page="add_scheme"] { --page-scene: url("../images/crops/rice.jpg"); --page-wash: rgba(221, 239, 224, .5); --page-scene-position: 50% 57%; }
+body[data-page="articles"] { --page-scene: url("../images/crops/corn.jpg"); --page-wash: rgba(229, 241, 214, .5); --page-scene-position: 50% 37%; }
+body[data-page="add_article"] { --page-scene: url("../images/crops/onion.jpg"); --page-wash: rgba(241, 225, 233, .5); --page-scene-position: 50% 46%; }
+body[data-page="login"] { --page-scene: url("../images/farm-hero.jpg"); --page-wash: rgba(220, 239, 224, .48); --page-scene-position: 50% 50%; }
+body[data-page="register"] { --page-scene: url("../images/crops/mango.jpg"); --page-wash: rgba(243, 235, 210, .5); --page-scene-position: 50% 45%; }
+body[data-page="farmer_dashboard"] { --page-scene: url("../images/crops/wheat.jpg"); --page-wash: rgba(220, 239, 215, .5); --page-scene-position: 50% 39%; }
+body[data-page="buyer_dashboard"] { --page-scene: url("../images/crops/tomato.jpg"); --page-wash: rgba(242, 225, 214, .5); --page-scene-position: 50% 45%; }
+body[data-page="dashboard"] { --page-scene: url("../images/farm-hero.jpg"); --page-wash: rgba(220, 238, 231, .5); --page-scene-position: 50% 44%; }
+body[data-page="admin_dashboard"] { --page-scene: url("../images/crops/default_crop.jpg"); --page-wash: rgba(229, 229, 240, .5); --page-scene-position: 50% 42%; }
+body[data-page="admin_users"] { --page-scene: url("../images/crops/rice.jpg"); --page-wash: rgba(230, 239, 218, .5); --page-scene-position: 50% 36%; }
+body[data-page="disease_detector"] { --page-scene: url("../images/crops/tomato.jpg"); --page-wash: rgba(244, 223, 218, .5); --page-scene-position: 50% 34%; }
+body[data-page="help_requests"] { --page-scene: url("../images/crops/corn.jpg"); --page-wash: rgba(219, 238, 231, .5); --page-scene-position: 50% 53%; }
+body[data-page="update_help_request"] { --page-scene: url("../images/crops/potato.jpg"); --page-wash: rgba(238, 233, 211, .5); --page-scene-position: 50% 52%; }
+body[data-page="not_found"] { --page-scene: url("../images/farm-hero.jpg"); --page-wash: rgba(220, 239, 226, .5); --page-scene-position: 50% 55%; }
 
 @media (max-width: 767.98px) {
-    body,
-    body[data-page] {
-        background-attachment: scroll;
+    .page-backdrop {
+        height: 360px;
+        background-position: center, center 40%;
     }
 }
 
@@ -475,7 +467,7 @@ textarea.form-control {
 .auth-section {
     min-height: 70vh;
     padding: 55px 0;
-    background: linear-gradient(135deg, rgba(240, 248, 241, .78), rgba(251, 253, 251, .86));
+    background: transparent;
 }
 
 .auth-card {

@@ -9,7 +9,7 @@
 * **🤖 Help Desk Chatbot (किसान सहायक)**: Interactive floating assistant available on every page with built-in responses about government schemes, selling and buying crops, organic farming, and support.
 * **🌾 Farmer Marketplace**: List crops with quantity, quality, pricing, and unit details. Direct buyer connection with no middleman.
 * **🛒 Order Management**: Buyers place orders; farmers can review, accept, or reject incoming requests. Stock updates automatically.
-* **🤝 Buyer-Seller Negotiation**: Buyers can make a quantity and price offer from a crop listing. Buyers and farmers can counter, accept, or decline offers in a shared negotiation page. Accepted deals create a confirmed order at the agreed price and reserve the available stock.
+* **🤝 Buyer-Seller Negotiation & Messaging**: Buyers can make a quantity and price offer from a crop listing, then both parties can exchange messages and counter-offers. Admins can read all marketplace conversations in a read-only view. Accepted deals create a confirmed order at the agreed price and reserve the available stock.
 * **🏛️ Government Schemes**: Information on welfare programs (PM-KISAN, PMFBY, KCC, Soil Health Card, PMKSY, PKVY) with eligibility and links.
 * **📚 Farmer Learning Centre**: Practical farming articles and guides in Hindi and English covering pest management, organic farming, and irrigation.
 * **🔬 Crop Health Check**: Farmer-only photo upload with symptom-based, cautious crop-health guidance and pesticide safety reminders. Photos are validated for the request and are not retained by the application.
@@ -91,9 +91,9 @@ These are public demo credentials, not private accounts. Change the admin creden
 
 ## 🧭 Using the Application
 
-* **Farmers** can create and manage listings, set quantities and prices, and handle incoming order requests from their dashboard.
-* **Buyers** can browse listings, request available quantities, negotiate directly with farmers, and track their orders. Open negotiations appear in the **Negotiations** navigation link for both roles.
-* **Admins** can review users and listings, manage schemes and articles, and respond to support requests.
+* **Farmers** can create and manage listings, set quantities and prices, handle incoming order requests, and message buyers from their negotiation conversations.
+* **Buyers** can browse listings, request available quantities, negotiate directly with farmers, and track their orders. Offers and messages appear in the **Negotiations** navigation link for both roles.
+* **Admins** can review users and listings, manage schemes and articles, respond to support requests, and read all buyer-seller conversations from **Market Chats** (read-only).
 * **All visitors** can browse active crop listings, schemes, and learning articles. Registered users can submit help requests; the chatbot is available throughout the site.
 
 Order requests begin as pending. When a farmer accepts an order, the app checks and deducts the available crop quantity; a listing with no stock left is marked sold. A buyer-seller negotiation keeps a history of offers and counter-offers. When the recipient accepts the latest offer, KisanSetu creates a confirmed order at that price and deducts the negotiated quantity from available stock.
@@ -102,7 +102,7 @@ Order requests begin as pending. When a farmer accepts an order, the app checks 
 
 * `app.py` - Core routes, view controllers, role dispatchers, seed logic, `/api/chatbot`, and the crop-health upload route.
 * `disease_advisory.py` - Crop and symptom guidance used by the crop-health checker.
-* `models.py` - Database models (`User`, `Crop`, `Order`, `Negotiation`, `NegotiationMessage`, `Scheme`, `Article`, `HelpRequest`).
+* `models.py` - Database models (`User`, `Crop`, `Order`, `Negotiation`, `NegotiationMessage`, `NegotiationChatMessage`, `Scheme`, `Article`, `HelpRequest`).
 * `forms.py` - WTForms form validation definitions.
 * `config.py` - Database and application configuration.
 * `templates/` - Jinja2 templates for the home page, dashboards, marketplace, negotiations, schemes, articles, and support.

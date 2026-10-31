@@ -1673,6 +1673,13 @@ html[data-theme="dark"] .theme-picker-toggle { border-color: #454656; background
 }
 .negotiation-message-price small { color: var(--dark-muted); font-size: .78rem; font-weight: 500; }
 .negotiation-message > p:last-child { overflow-wrap: anywhere; }
+.negotiation-message.plain-chat-message {
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--dark-surface-raised) 78%, var(--dark-accent));
+}
+.negotiation-message.plain-chat-message.sent {
+    border-color: color-mix(in srgb, var(--dark-accent) 48%, var(--dark-border));
+}
 
 .negotiation-reply {
     padding: 22px 24px;
@@ -1682,6 +1689,16 @@ html[data-theme="dark"] .theme-picker-toggle { border-color: #454656; background
 
 .negotiation-reply h4 { color: var(--dark-text); }
 .negotiation-reply .form-label { color: var(--dark-text); }
+.negotiation-chat-compose {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 18px 24px;
+    border-top: 1px solid var(--dark-border);
+    background: var(--dark-surface-raised);
+}
+.negotiation-chat-compose textarea { min-height: 46px; max-height: 140px; resize: vertical; }
+.negotiation-chat-compose .btn { flex: 0 0 auto; min-height: 44px; }
 .negotiation-result,
 .negotiation-waiting {
     display: flex;
@@ -1742,6 +1759,8 @@ html[data-theme="dark"] .theme-picker-toggle { border-color: #454656; background
     .negotiation-messages { padding: 16px; }
     .negotiation-message { width: 94%; }
     .negotiation-reply { padding: 18px 16px; }
+    .negotiation-chat-compose { align-items: stretch; padding: 16px; }
+    .negotiation-chat-compose .btn { align-self: flex-end; }
     .negotiation-result,
     .negotiation-waiting { margin-right: 16px; margin-left: 16px; }
 }

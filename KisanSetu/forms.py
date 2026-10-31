@@ -141,6 +141,14 @@ class NegotiationReplyForm(FlaskForm):
     submit = SubmitField("Send Counter-offer")
 
 
+class NegotiationChatForm(FlaskForm):
+    message = TextAreaField(
+        "Message",
+        validators=[DataRequired(), Length(min=1, max=2000)]
+    )
+    submit = SubmitField("Send Message")
+
+
 class HelpRequestForm(FlaskForm):
     subject = StringField(
         "Subject",

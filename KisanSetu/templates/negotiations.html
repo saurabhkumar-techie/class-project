@@ -9,7 +9,7 @@
             <span class="negotiation-eyebrow">FAIR DEALS, DIRECT CONNECTIONS</span>
             <h1 class="fw-bold mt-2 mb-2">Buyer-Seller Negotiation</h1>
             <p class="mb-0">
-                Discuss a fair price directly. Every offer stays together with its crop and order details.
+                Message buyers and farmers directly, discuss crop details, and keep every price offer in one conversation.
             </p>
         </div>
         <div class="negotiation-hero-icon" aria-hidden="true">🤝</div>
@@ -18,20 +18,21 @@
     <div class="negotiation-info-strip mb-4">
         <span aria-hidden="true">💡</span>
         <p class="mb-0">
-            The other party can counter, accept, or decline the latest offer. Accepting confirms the order and reserves the agreed quantity.
+            Offers and messages are visible to the buyer, seller, and KisanSetu administrators. Admin access is read-only.
         </p>
     </div>
 
     {% if negotiations %}
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h4 fw-bold mb-0">Your conversations</h2>
+            <h2 class="h4 fw-bold mb-0">{{ 'Marketplace conversations' if current_user.role == 'admin' else 'Your conversations' }}</h2>
             <span class="negotiation-count">{{ negotiations|length }} total</span>
         </div>
 
         <div class="d-grid gap-4">
-            {% for item in negotiations %}
+            {% for thread in negotiations %}
+                {% set item = thread.negotiation %}
                 {% set latest = item.messages[-1] %}
-                {% set can_respond = item.status == 'open' and latest.sender_id != current_user.id %}
+                {% set can_respond = current_user.role != 'admin' and item.status == 'open' and latest.sender_id != current_user.id %}
                 <article class="negotiation-thread">
                     <div class="negotiation-thread-header">
                         <div class="d-flex align-items-center gap-3">
@@ -40,10 +41,12 @@
                                  alt=""
                                  loading="lazy">
                             <div>
-                                <span class="negotiation-crop-label">CROP OFFER</span>
+                                <span class="negotiation-crop-label">BUYER ↔ SELLER CHAT</span>
                                 <h3 class="h5 fw-bold mb-1">{{ item.crop.name }}</h3>
                                 <p class="small text-muted mb-0">
-                                    {% if current_user.role == 'buyer' %}
+                                    {% if current_user.role == 'admin' %}
+                                        Buyer: {{ item.buyer.name }} · Seller: {{ item.farmer.name }}
+                                    {% elif current_user.role == 'buyer' %}
                                         Seller: {{ item.farmer.name }}
                                     {% else %}
                                         Buyer: {{ item.buyer.name }}
@@ -60,19 +63,25 @@
                     </div>
 
                     <div class="negotiation-messages">
-                        {% for message in item.messages %}
-                            <div class="negotiation-message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                        {% for entry in thread.timeline %}
+                            {% set message = entry.message %}
+                            {% set is_own_message = current_user.role != 'admin' and message.sender_id == current_user.id %}
+                            <div class="negotiation-message {% if is_own_message %}sent{% else %}received{% endif %} {% if entry.kind == 'chat' %}plain-chat-message{% endif %}">
                                 <div class="negotiation-message-meta">
-                                    <strong>{{ 'You' if message.sender_id == current_user.id else message.sender.name }}</strong>
+                                    <strong>{{ 'You' if is_own_message else message.sender.name }}</strong>
                                     <time datetime="{{ message.created_at.isoformat() }}">
                                         {{ message.created_at.strftime('%d %b %Y, %I:%M %p') }}
                                     </time>
                                 </div>
-                                <p class="negotiation-message-price">
-                                    ₹{{ "%.2f"|format(message.offer_price) }}
-                                    <small>/ {{ item.crop.unit }}</small>
-                                </p>
-                                {% if message.message %}
+                                {% if entry.kind == 'offer' %}
+                                    <p class="negotiation-message-price">
+                                        ₹{{ "%.2f"|format(message.offer_price) }}
+                                        <small>/ {{ item.crop.unit }}</small>
+                                    </p>
+                                    {% if message.message %}
+                                        <p class="mb-0">{{ message.message }}</p>
+                                    {% endif %}
+                                {% else %}
                                     <p class="mb-0">{{ message.message }}</p>
                                 {% endif %}
                             </div>
@@ -137,11 +146,34 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    {% else %}
+                    {% elif item.status == 'open' %}
                         <div class="negotiation-waiting">
                             <span class="waiting-pulse" aria-hidden="true"></span>
-                            Waiting for {{ 'the farmer' if current_user.role == 'buyer' else 'the buyer' }} to respond to the latest offer.
+                            {% if current_user.role == 'admin' %}
+                                Admin view · read-only conversation
+                            {% else %}
+                                Waiting for {{ 'the farmer' if current_user.role == 'buyer' else 'the buyer' }} to respond to the latest offer.
+                            {% endif %}
                         </div>
+                    {% endif %}
+
+                    {% if current_user.role != 'admin' %}
+                        <form class="negotiation-chat-compose"
+                              method="POST"
+                              action="{{ url_for('send_negotiation_message', negotiation_id=item.id) }}">
+                            {{ chat_form.csrf_token }}
+                            <label class="visually-hidden" for="chat-message-{{ item.id }}">Write a message</label>
+                            <textarea class="form-control"
+                                      id="chat-message-{{ item.id }}"
+                                      name="message"
+                                      rows="2"
+                                      maxlength="2000"
+                                      placeholder="Write a message to {{ 'the farmer' if current_user.role == 'buyer' else 'the buyer' }}..."
+                                      required></textarea>
+                            <button class="btn btn-success" type="submit" aria-label="Send message">
+                                Send <span aria-hidden="true">➤</span>
+                            </button>
+                        </form>
                     {% endif %}
                 </article>
             {% endfor %}
@@ -153,13 +185,15 @@
             <p class="text-muted mb-4">
                 {% if current_user.role == 'buyer' %}
                     Browse crop listings and send a price offer to start a conversation with a farmer.
-                {% else %}
+                {% elif current_user.role == 'farmer' %}
                     Buyer offers for your crops will appear here. You can reply with a counter-offer or accept the offer.
+                {% else %}
+                    Buyer and seller conversations will appear here when an offer is started.
                 {% endif %}
             </p>
             {% if current_user.role == 'buyer' %}
                 <a class="btn btn-success" href="{{ url_for('crop_list') }}">Browse crops</a>
-            {% else %}
+            {% elif current_user.role == 'farmer' %}
                 <a class="btn btn-success" href="{{ url_for('my_crops') }}">View my listings</a>
             {% endif %}
         </div>

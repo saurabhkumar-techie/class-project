@@ -34,6 +34,7 @@ from models import (
     Order,
     Negotiation,
     NegotiationMessage,
+    NegotiationChatMessage,
     Scheme,
     Article,
     HelpRequest,
@@ -45,6 +46,7 @@ from forms import (
     OrderForm,
     NegotiationOfferForm,
     NegotiationReplyForm,
+    NegotiationChatForm,
     HelpRequestForm,
     SchemeForm,
     ArticleForm,
@@ -520,22 +522,72 @@ def my_orders():
 # -------------------- BUYER-SELLER NEGOTIATIONS --------------------
 
 @app.route("/negotiations")
-@role_required("buyer", "farmer")
+@role_required("buyer", "farmer", "admin")
 def negotiations():
     if current_user.role == "buyer":
         conversations = Negotiation.query.filter_by(
             buyer_id=current_user.id
         ).order_by(Negotiation.updated_at.desc()).all()
-    else:
+    elif current_user.role == "farmer":
         conversations = Negotiation.query.filter_by(
             farmer_id=current_user.id
         ).order_by(Negotiation.updated_at.desc()).all()
+    else:
+        conversations = Negotiation.query.order_by(
+            Negotiation.updated_at.desc()
+        ).all()
+
+    threads = []
+    for conversation in conversations:
+        timeline = [
+            {"kind": "offer", "message": message}
+            for message in conversation.messages
+        ]
+        timeline.extend(
+            {"kind": "chat", "message": message}
+            for message in conversation.chat_messages
+        )
+        timeline.sort(key=lambda entry: (entry["message"].created_at,
+                                         entry["message"].id))
+        threads.append({"negotiation": conversation, "timeline": timeline})
 
     return render_template(
         "negotiations.html",
-        negotiations=conversations,
+        negotiations=threads,
         reply_form=NegotiationReplyForm(),
+        chat_form=NegotiationChatForm(),
     )
+
+
+@app.route(
+    "/negotiations/<int:negotiation_id>/messages",
+    methods=["POST"],
+)
+@role_required("buyer", "farmer")
+def send_negotiation_message(negotiation_id):
+    negotiation = db.get_or_404(Negotiation, negotiation_id)
+    if current_user.id not in (negotiation.buyer_id, negotiation.farmer_id):
+        abort(403)
+
+    form = NegotiationChatForm()
+    if not form.validate_on_submit():
+        flash("Enter a message up to 2,000 characters.", "danger")
+        return redirect(url_for("negotiations"))
+
+    message = NegotiationChatMessage(
+        negotiation_id=negotiation.id,
+        sender_id=current_user.id,
+        message=form.message.data.strip(),
+    )
+    if not message.message:
+        flash("Message cannot be empty.", "danger")
+        return redirect(url_for("negotiations"))
+
+    db.session.add(message)
+    negotiation.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    flash("Message sent.", "success")
+    return redirect(url_for("negotiations"))
 
 
 @app.route("/negotiations/new/<int:crop_id>", methods=["POST"])

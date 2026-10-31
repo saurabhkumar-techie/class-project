@@ -2,7 +2,7 @@ import unittest
 import uuid
 
 from app import app
-from models import Crop, Negotiation, Order, User, db
+from models import Crop, Negotiation, NegotiationChatMessage, Order, User, db
 
 
 class NegotiationFlowTests(unittest.TestCase):
@@ -29,6 +29,7 @@ class NegotiationFlowTests(unittest.TestCase):
                 role="buyer",
             )
             self.other_buyer.set_password("test-password")
+            self.admin = User.query.filter_by(role="admin").first()
             db.session.add_all([self.farmer, self.buyer, self.other_buyer])
             db.session.flush()
 
@@ -46,13 +47,16 @@ class NegotiationFlowTests(unittest.TestCase):
             self.farmer_id = self.farmer.id
             self.buyer_id = self.buyer.id
             self.other_buyer_id = self.other_buyer.id
+            self.admin_id = self.admin.id
 
         self.buyer_client = app.test_client()
         self.farmer_client = app.test_client()
         self.other_buyer_client = app.test_client()
+        self.admin_client = app.test_client()
         self._login(self.buyer_client, self.buyer_id)
         self._login(self.farmer_client, self.farmer_id)
         self._login(self.other_buyer_client, self.other_buyer_id)
+        self._login(self.admin_client, self.admin_id)
 
         crop_page = self.buyer_client.get(f"/crops/{self.crop_id}")
         self.assertEqual(crop_page.status_code, 200)
@@ -161,6 +165,52 @@ class NegotiationFlowTests(unittest.TestCase):
             self.assertEqual(
                 Negotiation.query.filter_by(crop_id=self.crop_id).count(),
                 0,
+            )
+
+    def test_chat_messages_are_visible_to_parties_and_admin_read_only(self):
+        self.buyer_client.post(
+            f"/negotiations/new/{self.crop_id}",
+            data={"quantity": "3", "offer_price": "52"},
+        )
+        with app.app_context():
+            negotiation_id = Negotiation.query.filter_by(
+                crop_id=self.crop_id
+            ).one().id
+
+        response = self.buyer_client.post(
+            f"/negotiations/{negotiation_id}/messages",
+            data={"message": "Can you share the harvest date?"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        farmer_page = self.farmer_client.get("/negotiations")
+        self.assertEqual(farmer_page.status_code, 200)
+        self.assertIn(b"Can you share the harvest date?", farmer_page.data)
+
+        admin_page = self.admin_client.get("/negotiations")
+        self.assertEqual(admin_page.status_code, 200)
+        self.assertIn(b"Marketplace conversations", admin_page.data)
+        self.assertIn(b"Can you share the harvest date?", admin_page.data)
+        self.assertNotIn(b"Write a message to", admin_page.data)
+
+        response = self.admin_client.post(
+            f"/negotiations/{negotiation_id}/messages",
+            data={"message": "This should not be allowed"},
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.other_buyer_client.post(
+            f"/negotiations/{negotiation_id}/messages",
+            data={"message": "Not a party"},
+        )
+        self.assertEqual(response.status_code, 403)
+
+        with app.app_context():
+            self.assertEqual(
+                NegotiationChatMessage.query.filter_by(
+                    negotiation_id=negotiation_id
+                ).count(),
+                1,
             )
 
 

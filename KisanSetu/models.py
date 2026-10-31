@@ -46,6 +46,10 @@ class User(UserMixin, db.Model):
         "NegotiationMessage",
         back_populates="sender"
     )
+    sent_negotiation_chat_messages = db.relationship(
+        "NegotiationChatMessage",
+        back_populates="sender"
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -174,6 +178,12 @@ class Negotiation(db.Model):
         order_by="NegotiationMessage.created_at",
         cascade="all, delete-orphan",
     )
+    chat_messages = db.relationship(
+        "NegotiationChatMessage",
+        back_populates="negotiation",
+        order_by="NegotiationChatMessage.created_at",
+        cascade="all, delete-orphan",
+    )
 
 
 class NegotiationMessage(db.Model):
@@ -193,6 +203,27 @@ class NegotiationMessage(db.Model):
     negotiation = db.relationship("Negotiation", back_populates="messages")
     sender = db.relationship(
         "User", back_populates="sent_negotiation_messages"
+    )
+
+
+class NegotiationChatMessage(db.Model):
+    __tablename__ = "negotiation_chat_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    negotiation_id = db.Column(
+        db.Integer, db.ForeignKey("negotiations.id"), nullable=False, index=True
+    )
+    sender_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False, index=True
+    )
+    message = db.Column(db.String(2000), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    negotiation = db.relationship(
+        "Negotiation", back_populates="chat_messages"
+    )
+    sender = db.relationship(
+        "User", back_populates="sent_negotiation_chat_messages"
     )
 
 

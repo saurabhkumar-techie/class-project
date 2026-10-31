@@ -167,26 +167,97 @@ textarea.form-control {
 .hero-section {
     position: relative;
     overflow: hidden;
-    padding: 75px 0;
-    background: linear-gradient(135deg, #edf8ef 0%, #f8fbef 55%, #e3f3e5 100%);
+    min-height: 610px;
+    padding: 76px 0;
+    background:
+        linear-gradient(90deg, rgba(10, 35, 24, .82) 0%, rgba(12, 42, 28, .69) 48%, rgba(14, 43, 29, .32) 100%),
+        url("../images/farm-hero.jpg") center 56% / cover no-repeat,
+        #173f29;
+}
+
+.hero-section::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(8, 29, 19, .3), transparent 42%);
+    content: "";
+    pointer-events: none;
+}
+
+.hero-section > .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-eyebrow {
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    color: #f2fff5 !important;
+    backdrop-filter: blur(8px);
 }
 
 .hero-section h1 {
-    color: #173f29;
-    font-size: clamp(2.3rem, 5vw, 4rem);
+    max-width: 760px;
+    color: #fff;
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
     font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -1.5px;
+    line-height: 1.08;
+    letter-spacing: -1.7px;
+    text-shadow: 0 3px 20px rgba(0,0,0,.2);
+}
+
+.hero-section .hero-highlight {
+    color: #c9ef9c;
 }
 
 .hero-section p {
     max-width: 620px;
-    color: #5a6b5e;
-    font-size: 1.08rem;
+    color: rgba(255,255,255,.86);
+    font-size: 1.1rem;
 }
 
-.hero-section .hero-highlight {
-    color: var(--primary-color);
+.hero-section .hero-primary-button {
+    border: 1px solid #fff;
+    background: #fff;
+    color: #176b45;
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
+.hero-section .hero-primary-button:hover {
+    border-color: #e7f5e9;
+    background: #e7f5e9;
+    color: #115c39;
+}
+
+.hero-section .hero-secondary-button {
+    border-color: rgba(255,255,255,.72);
+    color: #fff;
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(6px);
+}
+
+.hero-section .hero-secondary-button:hover {
+    border-color: #fff;
+    background: rgba(255,255,255,.18);
+    color: #fff;
+}
+
+.hero-stat {
+    height: 100%;
+    padding: 13px 15px;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 13px;
+    background: rgba(255,255,255,.1);
+    backdrop-filter: blur(8px);
+}
+
+.hero-stat h4 {
+    color: #fff !important;
+    font-size: 1.1rem;
+}
+
+.hero-stat small {
+    color: rgba(255,255,255,.76) !important;
 }
 
 .hero-image {
@@ -195,6 +266,27 @@ textarea.form-control {
     object-fit: cover;
     border-radius: 24px;
 }
+
+.hero-card {
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 24px;
+    background: rgba(248, 253, 248, .93);
+    box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    backdrop-filter: blur(12px);
+}
+
+.hero-icon {
+    display: inline-grid;
+    width: 76px;
+    height: 76px;
+    place-items: center;
+    border: 1px solid #d5ecd9;
+    border-radius: 23px;
+    background: linear-gradient(145deg, #eff9ef, #dff1df);
+    font-size: 2.5rem;
+}
+
+.hero-card h3 { color: #173f29; }
 
 /* Section Headings */
 .section-title {
@@ -433,7 +525,9 @@ footer a:hover {
 /* Responsive Design */
 @media (max-width: 991px) {
     .hero-section {
+        min-height: 0;
         padding: 55px 0;
+        background-position: center, 62% center;
     }
 
     .navbar .nav-link {
@@ -447,8 +541,13 @@ footer a:hover {
 
 @media (max-width: 767px) {
     .hero-section {
+        min-height: 0;
         padding: 42px 0;
         text-align: center;
+        background-image:
+            linear-gradient(180deg, rgba(10, 35, 24, .76), rgba(10, 35, 24, .82)),
+            url("../images/farm-hero.jpg");
+        background-position: center, 58% center;
     }
 
     .hero-section h1 {
@@ -456,10 +555,26 @@ footer a:hover {
         letter-spacing: -0.8px;
     }
 
+    .hero-section .d-flex.flex-wrap {
+        justify-content: center;
+    }
+
     .hero-section p {
         margin-right: auto;
         margin-left: auto;
         font-size: 1rem;
+    }
+
+    .hero-stat {
+        padding: 11px 6px;
+    }
+
+    .hero-stat h4 {
+        font-size: .95rem;
+    }
+
+    .hero-stat small {
+        font-size: .68rem;
     }
 
     .section-padding {

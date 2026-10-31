@@ -106,7 +106,7 @@ Order requests begin as pending. When a farmer accepts an order, the app checks 
 * `config.py` - Database and application configuration.
 * `templates/` - Jinja2 templates for the home page, dashboards, marketplace, schemes, articles, and support.
 * `static/css/` and `static/js/` - Stylesheets and JavaScript for the interface and chatbot.
-* `static/images/` - Crop images and other static image assets.
+* `static/images/` - Crop images and other static image assets, including the homepage farm landscape from [Unsplash](https://images.unsplash.com/photo-1500382017468-9049fed747ef).
 * `static/uploads/` - Uploaded crop images.
 * `instance/kisansetu.db` - Default local SQLite database, created if it does not exist.
 

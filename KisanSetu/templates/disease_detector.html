@@ -4,60 +4,331 @@
 
 {% block extra_css %}
 <style>
+.health-page {
+    --health-green: #176b45;
+    --health-dark: #143b2b;
+    --health-mint: #e9f7ee;
+    --health-border: #e4eee7;
+}
+.health-page .page-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    color: #e8fff0;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
 .health-hero {
-    background: linear-gradient(135deg, #e8f6eb, #f3faed);
-    border: 1px solid #d5ecd9;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 270px;
+    padding: clamp(28px, 5vw, 54px);
+    border: 0;
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at 83% 18%, rgba(183, 231, 153, .24), transparent 25%),
+        radial-gradient(circle at 100% 100%, rgba(58, 158, 100, .32), transparent 36%),
+        linear-gradient(120deg, #113c2b 0%, #176b45 57%, #27824e 100%);
+    box-shadow: 0 20px 46px rgba(20, 59, 43, .18);
+}
+.health-hero::after {
+    position: absolute;
+    z-index: -1;
+    right: 7%;
+    bottom: -96px;
+    width: 285px;
+    height: 285px;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 50%;
+    box-shadow: 0 0 0 30px rgba(255,255,255,.035), 0 0 0 62px rgba(255,255,255,.025);
+    content: "";
+}
+.health-hero h1 {
+    max-width: 700px;
+    color: white;
+    font-size: clamp(2.1rem, 5vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.12;
+}
+.health-hero .hero-copy {
+    max-width: 680px;
+    color: rgba(255,255,255,.82);
+    font-size: 1.02rem;
+}
+.hero-visual {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 138px;
+    height: 138px;
+    margin: auto;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 38px;
+    background: rgba(255,255,255,.12);
+    box-shadow: inset 0 1px rgba(255,255,255,.18), 0 15px 40px rgba(0,0,0,.12);
+    transform: rotate(-7deg);
+}
+.hero-visual span { font-size: 4.7rem; transform: rotate(7deg); }
+.health-card {
+    border: 1px solid var(--health-border);
     border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 35px rgba(25, 68, 42, .07);
+}
+.health-card .card-body { padding: clamp(20px, 3vw, 32px); }
+.section-heading { display: flex; align-items: flex-start; gap: 14px; }
+.section-icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--health-mint);
+    font-size: 1.3rem;
+}
+.section-heading h2 {
+    margin: 0 0 3px;
+    color: var(--health-dark);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+.section-heading p { margin: 0; color: #78877d; font-size: .88rem; }
+.step-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+    color: #344a3c;
+    font-size: .92rem;
+    font-weight: 700;
+}
+.step-number {
+    display: inline-grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8f5ec;
+    color: var(--health-green);
+    font-size: .76rem;
+    font-weight: 800;
+}
+.health-page .form-select {
+    min-height: 52px;
+    border-color: #dce8df;
+    border-radius: 12px;
+    background-color: #fbfdfb;
+}
+.health-page .form-select:focus {
+    border-color: #65b989;
+    box-shadow: 0 0 0 4px rgba(25, 135, 84, .1);
 }
 .upload-zone {
     position: relative;
-    border: 2px dashed #198754;
-    border-radius: 14px;
-    background: #f8fdf9;
-    padding: 32px 18px;
+    overflow: hidden;
+    border: 2px dashed #bbd8c4;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #f7fcf8, #f0f8f2);
+    padding: 27px 18px;
     text-align: center;
     cursor: pointer;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
-.upload-zone.drag-over { background: #e8f6eb; }
+.upload-zone:hover,
+.upload-zone.drag-over,
+.upload-zone:focus-within { border-color: #25834f; background: #eaf7ed; }
+.upload-zone.drag-over { transform: scale(1.01); }
+.upload-icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 12px;
+    place-items: center;
+    border-radius: 17px;
+    background: #dff2e4;
+    font-size: 1.8rem;
+}
+.upload-zone input:focus-visible + .upload-content {
+    outline: 3px solid rgba(25, 135, 84, .35);
+    outline-offset: 5px;
+}
+.browse-link { color: #176b45; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.image-preview-card {
+    position: relative;
+    overflow: hidden;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid var(--health-border);
+    border-radius: 15px;
+    background: #f8fbf8;
+}
 .preview-img {
     display: none;
     max-width: 100%;
-    max-height: 280px;
+    max-height: 300px;
+    margin: auto;
     object-fit: contain;
+    border-radius: 10px;
+}
+.preview-caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 3px 1px;
+    color: #607066;
+    font-size: .82rem;
+}
+.privacy-note { display: flex; align-items: flex-start; gap: 9px; color: #6b796f; font-size: .8rem; line-height: 1.5; }
+.btn-health {
+    min-height: 52px;
+    border: 0;
     border-radius: 12px;
+    background: linear-gradient(110deg, #197348, #249259);
+    box-shadow: 0 8px 18px rgba(25, 115, 72, .2);
+    font-weight: 800;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.btn-health:hover {
+    background: linear-gradient(110deg, #145d3b, #1d7e4c);
+    box-shadow: 0 11px 22px rgba(25, 115, 72, .25);
+    transform: translateY(-1px);
+}
+.btn-health:disabled { opacity: .7; }
+.how-card { position: sticky; top: 95px; }
+.how-card-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--health-border);
+    background: linear-gradient(120deg, #f6fbf7, #fff);
+}
+.how-step { display: flex; gap: 13px; padding: 15px 0; border-bottom: 1px solid #eef3ef; }
+.how-step:last-child { padding-bottom: 0; border-bottom: 0; }
+.how-step-icon {
+    display: grid;
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf7ef;
+    font-size: 1.05rem;
+}
+.how-step strong { display: block; color: #263d2e; font-size: .9rem; }
+.how-step small { display: block; margin-top: 2px; color: #7a887f; line-height: 1.5; }
+.safety-card {
+    border: 1px solid #f1e4bd;
+    border-radius: 17px;
+    background: linear-gradient(140deg, #fffaf0, #fff);
+}
+.safety-icon {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 12px;
+    background: #fff0c9;
+}
+.result-card {
+    overflow: hidden;
+    border: 1px solid #dbeae0;
+    border-radius: 20px;
+    box-shadow: 0 14px 36px rgba(25, 68, 42, .08);
+}
+.result-header { padding: 22px 26px; background: linear-gradient(115deg, #176b45, #258653); color: white; }
+.result-kicker { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 8px; color: #d9f4e2; font-size: .78rem; font-weight: 700; }
+.result-chip {
+    display: inline-block;
+    padding: 7px 12px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    font-size: .8rem;
+    font-weight: 700;
 }
 .advice-block {
-    border-left: 4px solid #198754;
-    background: #f8fdf9;
-    border-radius: 8px;
-    padding: 16px;
+    border: 1px solid #e8f0ea;
+    border-left: 4px solid #249259;
+    border-radius: 13px;
+    background: #fbfdfb;
+    padding: 17px 18px;
+}
+.advice-block h4 { display: flex; align-items: center; gap: 8px; color: #244231; }
+.advice-block p:last-child { margin-bottom: 0; }
+.advice-block.safety-advice { border-color: #f2e7c9; border-left-color: #d6a53a; background: #fffdf7; }
+.result-warning {
+    border: 1px solid #f1dfb6;
+    border-radius: 13px;
+    background: #fff8e8;
+    color: #6f5622;
+    line-height: 1.65;
+}
+.health-alert { border: 1px solid #f1dfb6; border-radius: 13px; }
+@media (max-width: 767.98px) {
+    .health-hero { min-height: auto; border-radius: 20px; }
+    .hero-visual { width: 90px; height: 90px; margin: 22px 0 0; border-radius: 27px; }
+    .hero-visual span { font-size: 3.2rem; }
+    .how-card { position: static; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .upload-zone, .btn-health { transition: none; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <header class="health-hero p-4 p-md-5 mb-4">
-        <span class="badge bg-success-subtle text-success mb-3">किसान सुविधा</span>
-        <h1 class="fw-bold mb-2">Crop Health Check</h1>
-        <h2 class="h5 text-success mb-3">फसल के लक्षण और शुरुआती सलाह</h2>
-        <p class="text-secondary mb-0">
-            फसल की फोटो अपलोड करें, फसल और दिख रहे लक्षण चुनें। ऐप संभावित कारण और सुरक्षित अगले कदम बताएगा।
-            <strong>यह फोटो से AI रोग पहचान नहीं है</strong>—लक्षणों से मिली सलाह की कृषि विशेषज्ञ से पुष्टि करें।
-        </p>
+<div class="container py-4 py-lg-5 health-page">
+    <header class="health-hero mb-4 mb-lg-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="page-eyebrow mb-3">🌱 किसान स्वास्थ्य सहायक</span>
+                <h1 class="mb-3">आपकी फसल, हमारी देखभाल।</h1>
+                <p class="hero-copy mb-3">
+                    फसल के लक्षण साझा करें और पाएं समझने में आसान शुरुआती सलाह—अगला सही कदम उठाने के लिए।
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="result-chip">📷 फोटो गाइड</span>
+                    <span class="result-chip">🌿 लक्षण-आधारित सुझाव</span>
+                    <span class="result-chip">🛡️ सुरक्षित खेती पर जोर</span>
+                </div>
+                <p class="small mt-3 mb-0" style="color:rgba(255,255,255,.7)">
+                    ℹ️ यह फोटो से AI रोग पहचान नहीं है। सलाह की कृषि विशेषज्ञ से पुष्टि करें।
+                </p>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="hero-visual" aria-hidden="true"><span>🌿</span></div>
+            </div>
+        </div>
     </header>
 
-    <div class="row g-4">
+    <div class="row g-4 align-items-start">
         <div class="col-lg-7">
-            <section class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h5 fw-bold mb-3">📷 फसल की फोटो और लक्षण दें</h3>
+            <section class="health-card">
+                <div class="card-body">
+                    <div class="section-heading mb-4">
+                        <div class="section-icon" aria-hidden="true">🔎</div>
+                        <div>
+                            <h2>फसल की जाँच शुरू करें</h2>
+                            <p>बस तीन छोटी जानकारियाँ दें</p>
+                        </div>
+                    </div>
                     <form id="disease-form" method="POST" enctype="multipart/form-data"
                           action="{{ url_for('disease_detector') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                         <div class="mb-3">
-                            <label for="crop_type" class="form-label fw-semibold">फसल चुनें</label>
+                            <label for="crop_type" class="step-label">
+                                <span class="step-number">1</span> कौन-सी फसल है?
+                            </label>
                             <select class="form-select" name="crop_type" id="crop_type" required>
                                 <option value="">फसल चुनें</option>
                                 {% for crop_id, crop_name in crops.items() %}
@@ -69,7 +340,9 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="symptom" class="form-label fw-semibold">पौधे में सबसे साफ दिख रहा लक्षण चुनें</label>
+                            <label for="symptom" class="step-label">
+                                <span class="step-number">2</span> पौधे में क्या बदलाव दिख रहा है?
+                            </label>
                             <select class="form-select" name="symptom" id="symptom" required>
                                 <option value="">लक्षण चुनें</option>
                                 {% for symptom_id, symptom_name in symptoms.items() %}
@@ -78,71 +351,89 @@
                                 </option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text">यह चुनाव आपकी दी हुई जानकारी है; ऐप फोटो में रोग की पहचान नहीं करता।</div>
+                            <div class="form-text mt-2">सबसे स्पष्ट दिखने वाला लक्षण चुनें। यह जानकारी आपसे ली जा रही है।</div>
                         </div>
 
-                        <label for="crop_image" class="form-label fw-semibold">पत्ते या प्रभावित हिस्से की फोटो</label>
+                        <label for="crop_image" class="step-label mt-4">
+                            <span class="step-number">3</span> प्रभावित हिस्से की फोटो जोड़ें
+                        </label>
                         <div class="upload-zone mb-2" id="upload-zone">
                             <input type="file" id="crop_image" name="crop_image"
                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                                    class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
-                                   style="cursor:pointer" required>
-                            <span class="fs-1" aria-hidden="true">🌿</span>
-                            <div class="fw-semibold text-success">फोटो चुनें या यहाँ खींचकर छोड़ें</div>
-                            <small class="text-secondary">JPG, PNG या WEBP • अधिकतम 5 MB</small>
+                                   style="cursor:pointer" aria-label="फसल की फोटो चुनें" required>
+                            <div class="upload-content">
+                                <span class="upload-icon" aria-hidden="true">📷</span>
+                                <div class="fw-bold text-dark mb-1">अपनी फसल की फोटो यहाँ जोड़ें</div>
+                                <div class="small text-secondary">
+                                    फोटो चुनने के लिए <span class="browse-link">यहाँ क्लिक करें</span> या खींचकर छोड़ें
+                                </div>
+                                <div class="small text-secondary mt-2">JPG, PNG या WEBP · अधिकतम 5 MB</div>
+                            </div>
                         </div>
-                        <img id="preview-img" class="preview-img mb-2" alt="चुनी गई फसल की फोटो का पूर्वावलोकन">
                         <div id="file-error" class="text-danger small mb-2" role="alert"></div>
-                        <div id="selected-file" class="small text-secondary mb-3"></div>
+                        <div class="image-preview-card" id="preview-card" hidden>
+                            <img id="preview-img" class="preview-img" alt="चुनी गई फसल की फोटो का पूर्वावलोकन">
+                            <div class="preview-caption">
+                                <span id="selected-file" class="text-truncate"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" id="remove-image">
+                                    बदलें
+                                </button>
+                            </div>
+                        </div>
 
-                        <button class="btn btn-success w-100" type="submit" id="analyze-btn">
-                            लक्षणों के आधार पर सलाह देखें
+                        <button class="btn btn-success btn-health w-100 mt-3" type="submit" id="analyze-btn">
+                            <span aria-hidden="true">✨</span> मेरी फसल के लिए सलाह दिखाएँ
                         </button>
                     </form>
-                    <p class="small text-secondary mt-3 mb-0">
-                        फोटो अनुरोध के दौरान जाँची जाती है; ऐप इसे अपने डेटाबेस या uploads फ़ोल्डर में सेव नहीं करता।
+                    <p class="privacy-note mt-3 mb-0">
+                        <span aria-hidden="true">🔒</span>
+                        <span>आपकी फोटो सिर्फ अपलोड की जाँच के लिए उपयोग होती है। ऐप इसे database या uploads में सेव नहीं करता।</span>
                     </p>
                 </div>
             </section>
 
             {% if error %}
-            <div class="alert alert-warning mt-3" role="alert">{{ error }}</div>
+            <div class="alert alert-warning health-alert mt-3" role="alert">⚠️ {{ error }}</div>
             {% endif %}
 
             {% if result %}
-            <section class="card border-0 shadow-sm mt-4" aria-live="polite">
-                <div class="card-header bg-success text-white p-3">
-                    <div class="small">शुरुआती सलाह — पक्की बीमारी की पहचान नहीं</div>
-                    <h3 class="h5 fw-bold mb-0">{{ result.crop }}</h3>
+            <section class="result-card mt-4" aria-live="polite">
+                <div class="result-header">
+                    <span class="result-kicker">✨ आपकी फसल के लिए शुरुआती सलाह</span>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h3 class="h5 fw-bold mb-0">{{ result.crop }}</h3>
+                        <span class="result-chip">पक्की बीमारी की पहचान नहीं</span>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     <div class="advice-block mb-3">
-                        <h4 class="h6 fw-bold">आपके चुने हुए लक्षण</h4>
+                        <h4 class="h6 fw-bold"><span aria-hidden="true">👀</span> आपके चुने हुए लक्षण</h4>
                         <p class="mb-0">{{ result.symptom }}</p>
                     </div>
                     <div class="advice-block mb-3">
-                        <h4 class="h6 fw-bold">संभावित कारण</h4>
+                        <h4 class="h6 fw-bold"><span aria-hidden="true">🔍</span> संभावित कारण</h4>
                         <p class="mb-1">{{ result.possible_cause }}</p>
                         <p class="mb-0 text-secondary">{{ result.cause_hi }}</p>
                     </div>
                     <div class="advice-block mb-3">
-                        <h4 class="h6 fw-bold">अभी क्या करें</h4>
+                        <h4 class="h6 fw-bold"><span aria-hidden="true">🌱</span> अभी क्या करें</h4>
                         <ul class="mb-0">
                             {% for step in result.steps %}
                             <li class="mb-1">{{ step }}</li>
                             {% endfor %}
                         </ul>
                     </div>
-                    <div class="advice-block mb-3 border-warning">
-                        <h4 class="h6 fw-bold">कीटनाशक / दवा के बारे में</h4>
+                    <div class="advice-block safety-advice mb-3">
+                        <h4 class="h6 fw-bold"><span aria-hidden="true">🛡️</span> कीटनाशक / दवा के बारे में</h4>
                         <p class="mb-1">{{ result.pesticide }}</p>
                         <p class="mb-0 text-secondary">{{ result.pesticide_hi }}</p>
                     </div>
-                    <div class="alert alert-warning small mb-3">
+                    <div class="result-warning small p-3 mb-3">
                         गलत दवा फसल, लाभकारी कीट और स्वास्थ्य को नुकसान पहुँचा सकती है। दवा का नाम/मात्रा तय करने से पहले स्थानीय कृषि विभाग या KVK से पुष्टि करें। लेबल, सुरक्षा उपकरण और कटाई-पूर्व प्रतीक्षा अवधि का पालन करें।
                     </div>
                     <a class="btn btn-outline-success" href="{{ url_for('help_requests') }}">
-                        विशेषज्ञ से सहायता माँगें
+                        💬 विशेषज्ञ से सहायता माँगें
                     </a>
                 </div>
             </section>
@@ -150,20 +441,46 @@
         </div>
 
         <aside class="col-lg-5">
-            <section class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h6 fw-bold">📸 बेहतर फोटो के लिए</h3>
-                    <ul class="text-secondary small mb-0">
-                        <li class="mb-2">प्राकृतिक रोशनी में साफ, धुंधली न होने वाली फोटो लें।</li>
-                        <li class="mb-2">प्रभावित हिस्से के साथ पत्ते की पूरी आकृति भी दिखाएँ।</li>
-                        <li class="mb-2">संभव हो तो पत्ते के आगे और पीछे की अलग-अलग फोटो लें।</li>
-                        <li>कीट या अंडे दिखें तो उनकी स्पष्ट नज़दीकी फोटो भी रखें।</li>
-                    </ul>
+            <section class="health-card how-card">
+                <div class="how-card-header">
+                    <div class="section-heading">
+                        <div class="section-icon" aria-hidden="true">🧭</div>
+                        <div>
+                            <h2>यह कैसे काम करता है?</h2>
+                            <p>आपके खेत से शुरुआती सलाह तक</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-4 py-2">
+                    <div class="how-step">
+                        <span class="how-step-icon" aria-hidden="true">🌾</span>
+                        <div><strong>अपनी फसल चुनें</strong><small>जिस पौधे में परेशानी है, उसका नाम चुनें।</small></div>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-step-icon" aria-hidden="true">👀</span>
+                        <div><strong>लक्षण पहचानें</strong><small>पत्ते या पौधे पर सबसे साफ बदलाव चुनें।</small></div>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-step-icon" aria-hidden="true">📸</span>
+                        <div><strong>फोटो जोड़ें</strong><small>स्पष्ट फोटो से विशेषज्ञ से चर्चा करना आसान होगा।</small></div>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-step-icon" aria-hidden="true">🛡️</span>
+                        <div><strong>सुरक्षित अगला कदम लें</strong><small>संभावित कारण देखें और दवा से पहले पुष्टि लें।</small></div>
+                    </div>
                 </div>
             </section>
-            <div class="alert alert-info small mt-3">
-                लक्षण कई कारणों से हो सकते हैं। यह सुविधा फोटो का स्वचालित विश्लेषण या विशेषज्ञ की पुष्टि नहीं करती।
-            </div>
+            <section class="safety-card p-3 p-md-4 mt-3">
+                <div class="d-flex gap-3">
+                    <span class="safety-icon" aria-hidden="true">⚠️</span>
+                    <div>
+                        <h3 class="h6 fw-bold mb-1">सलाह, diagnosis नहीं</h3>
+                        <p class="small text-secondary mb-0">
+                            लक्षण कई कारणों से हो सकते हैं। यह सुविधा फोटो का स्वचालित विश्लेषण नहीं करती। दवा और मात्रा कृषि विशेषज्ञ/KVK से पूछकर ही तय करें।
+                        </p>
+                    </div>
+                </div>
+            </section>
         </aside>
     </div>
 </div>
@@ -175,9 +492,11 @@ const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('crop_image');
 const preview = document.getElementById('preview-img');
 const fileLabel = document.getElementById('selected-file');
+const previewCard = document.getElementById('preview-card');
 const fileError = document.getElementById('file-error');
 const form = document.getElementById('disease-form');
 const analyzeButton = document.getElementById('analyze-btn');
+const removeImage = document.getElementById('remove-image');
 const maxBytes = 5 * 1024 * 1024;
 const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 let previewUrl = null;
@@ -186,7 +505,8 @@ function showSelectedFile(file) {
     fileError.textContent = '';
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     preview.removeAttribute('src');
-    preview.style.display = 'none';
+    previewCard.hidden = true;
+    uploadZone.hidden = false;
     fileLabel.textContent = '';
 
     if (!file) return;
@@ -202,9 +522,16 @@ function showSelectedFile(file) {
     preview.src = previewUrl;
     preview.style.display = 'block';
     fileLabel.textContent = file.name;
+    previewCard.hidden = false;
+    uploadZone.hidden = true;
 }
 
 fileInput.addEventListener('change', () => showSelectedFile(fileInput.files[0]));
+removeImage.addEventListener('click', () => {
+    fileInput.value = '';
+    showSelectedFile(null);
+    fileInput.click();
+});
 uploadZone.addEventListener('dragover', event => {
     event.preventDefault();
     uploadZone.classList.add('drag-over');
@@ -222,7 +549,7 @@ uploadZone.addEventListener('drop', event => {
 });
 form.addEventListener('submit', () => {
     analyzeButton.disabled = true;
-    analyzeButton.textContent = 'सलाह तैयार हो रही है…';
+    analyzeButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>सलाह तैयार हो रही है…';
 });
 window.addEventListener('beforeunload', () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);

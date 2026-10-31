@@ -138,39 +138,15 @@
                         </li>
 
                     {% endif %}
+
                 </ul>
             </div>
         </div>
     </nav>
 
-
-    <!-- Flash Messages -->
-    <main>
-        <div class="container mt-3">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show"
-                             role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close"
-                                    data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        {% block content %}{% endblock %}
-    </main>
-
-
-
     <details class="theme-picker" id="theme-picker">
-        <summary class="theme-picker-toggle" aria-label="Choose a color theme">
+        <summary class="theme-picker-toggle" aria-label="Choose a color theme" title="Choose a color theme">
             <span aria-hidden="true">🎨</span>
-            <span>Theme</span>
         </summary>
         <div class="theme-picker-panel" role="group" aria-label="Color themes">
             <p class="theme-picker-title">Choose your look</p>
@@ -196,6 +172,30 @@
             </button>
         </div>
     </details>
+
+
+    <!-- Flash Messages -->
+    <main>
+        <div class="container mt-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show"
+                             role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+
 
     <!-- KisanSetu Help Desk Chatbot Widget -->
     <div id="kisansetu-chat-widget">

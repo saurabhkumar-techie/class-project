@@ -1292,33 +1292,35 @@ main .badge.bg-white {
     html { scroll-behavior: auto; }
 }
 
-/* Top-corner theme picker */
+/* Fixed top-corner theme picker */
 .theme-picker {
     position: fixed;
     top: 76px;
-    right: 24px;
-    z-index: 1061;
+    right: 18px;
+    z-index: 1080;
     color: var(--dark-text);
 }
 
 .theme-picker-toggle {
     display: flex;
+    width: 44px;
+    height: 44px;
     align-items: center;
-    gap: 8px;
-    padding: 11px 16px;
-    border: 1px solid #45614c;
-    border-radius: 999px;
-    background: #18251d;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .32);
-    color: #e4eee7;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--dark-border);
+    border-radius: 50%;
+    background: var(--dark-surface);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
+    color: var(--primary-dark);
     cursor: pointer;
-    font-size: .9rem;
+    font-size: 1.15rem;
     font-weight: 700;
     list-style: none;
 }
 
 .theme-picker-toggle::-webkit-details-marker { display: none; }
-.theme-picker-toggle:hover { border-color: #78dda0; }
+.theme-picker-toggle:hover { border-color: var(--dark-accent); }
 .theme-picker-toggle:focus-visible,
 .theme-option:focus-visible {
     outline: 3px solid var(--dark-accent);
@@ -1327,15 +1329,20 @@ main .badge.bg-white {
 
 .theme-picker-panel {
     position: absolute;
-    top: calc(100% + 12px);
+    top: calc(100% + 8px);
     right: 0;
+    z-index: 1061;
     width: 210px;
+    max-height: calc(100vh - 140px);
     padding: 12px;
-    border: 1px solid var(--dark-border);
+    overflow-y: auto;
+    border: 1px solid var(--dark-border, #304337);
     border-radius: 16px;
-    background: var(--dark-surface);
+    background: var(--dark-surface, #18251d);
     box-shadow: 0 16px 40px rgba(0, 0, 0, .38);
 }
+
+.theme-picker[open] .theme-picker-panel { display: block; }
 
 .theme-picker-title {
     margin: 0 0 8px;
@@ -1424,8 +1431,6 @@ html[data-theme="ocean"] .hero-section {
         linear-gradient(90deg, rgba(5, 12, 22, .9) 0%, rgba(7, 17, 30, .75) 50%, rgba(8, 22, 38, .52) 100%),
         url("../images/farm-hero.jpg");
 }
-html[data-theme="ocean"] .theme-picker-toggle { border-color: #40566d; background: #182331; }
-
 html[data-theme="harvest"] body {
     --dark-surface: #282319;
     --dark-surface-raised: #342d20;
@@ -1470,8 +1475,6 @@ html[data-theme="harvest"] .hero-section {
         linear-gradient(90deg, rgba(21, 15, 7, .9) 0%, rgba(31, 23, 12, .75) 50%, rgba(39, 28, 12, .52) 100%),
         url("../images/farm-hero.jpg");
 }
-html[data-theme="harvest"] .theme-picker-toggle { border-color: #5b4c31; background: #282319; }
-
 html[data-theme="dark"] body {
     --dark-surface: #1d1e26;
     --dark-surface-raised: #252630;
@@ -1528,11 +1531,8 @@ html[data-theme="dark"] .hero-section {
         linear-gradient(90deg, rgba(8, 8, 14, .91) 0%, rgba(13, 13, 22, .78) 50%, rgba(18, 18, 28, .56) 100%),
         url("../images/farm-hero.jpg");
 }
-html[data-theme="dark"] .theme-picker-toggle { border-color: #454656; background: #1d1e26; }
-
 @media (max-width: 480px) {
-    .theme-picker { top: 68px; right: 12px; }
-    .theme-picker-toggle { padding: 9px 13px; }
+    .theme-picker { top: 70px; right: 12px; }
 }
 
 /* Buyer-seller negotiation page */

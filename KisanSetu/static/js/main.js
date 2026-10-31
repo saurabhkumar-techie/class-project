@@ -5,6 +5,49 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
+    // Theme selection
+    const themePicker = document.getElementById("theme-picker");
+    const themeOptions = document.querySelectorAll("[data-theme-choice]");
+    const validThemes = ["forest", "ocean", "harvest", "dark"];
+
+    function updateThemeOptions(theme) {
+        themeOptions.forEach(function (option) {
+            option.setAttribute(
+                "aria-pressed",
+                option.dataset.themeChoice === theme ? "true" : "false"
+            );
+        });
+    }
+
+    const activeTheme = validThemes.includes(document.documentElement.dataset.theme)
+        ? document.documentElement.dataset.theme
+        : "forest";
+    document.documentElement.dataset.theme = activeTheme;
+    updateThemeOptions(activeTheme);
+
+    themeOptions.forEach(function (option) {
+        option.addEventListener("click", function () {
+            const theme = option.dataset.themeChoice;
+            if (!validThemes.includes(theme)) {
+                return;
+            }
+
+            document.documentElement.dataset.theme = theme;
+            updateThemeOptions(theme);
+
+            try {
+                localStorage.setItem("kisansetu-theme", theme);
+            } catch (error) {
+                console.warn("Theme preference could not be saved.", error);
+            }
+
+            if (themePicker) {
+                themePicker.open = false;
+            }
+        });
+    });
+
+
     // 1. Automatically hide flash messages
     const alerts = document.querySelectorAll(
         ".alert:not(.alert-permanent)"

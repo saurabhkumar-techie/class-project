@@ -113,6 +113,34 @@ class OrderForm(FlaskForm):
     submit = SubmitField("Place Order Request")
 
 
+class NegotiationOfferForm(FlaskForm):
+    quantity = FloatField(
+        "Quantity",
+        validators=[DataRequired(), NumberRange(min=0.01)]
+    )
+    offer_price = FloatField(
+        "Your offer per unit (₹)",
+        validators=[DataRequired(), NumberRange(min=0.01)]
+    )
+    message = TextAreaField(
+        "Message (optional)",
+        validators=[Optional(), Length(max=1000)]
+    )
+    submit = SubmitField("Send Offer")
+
+
+class NegotiationReplyForm(FlaskForm):
+    offer_price = FloatField(
+        "Counter-offer per unit (₹)",
+        validators=[DataRequired(), NumberRange(min=0.01)]
+    )
+    message = TextAreaField(
+        "Message (optional)",
+        validators=[Optional(), Length(max=1000)]
+    )
+    submit = SubmitField("Send Counter-offer")
+
+
 class HelpRequestForm(FlaskForm):
     subject = StringField(
         "Subject",

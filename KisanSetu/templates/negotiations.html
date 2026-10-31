@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Buyer-Seller Negotiation - KisanSetu{% endblock %}
+
+{% block content %}
+<section class="negotiation-page container py-4 py-lg-5">
+    <header class="negotiation-page-hero mb-4 mb-lg-5">
+        <div>
+            <span class="negotiation-eyebrow">FAIR DEALS, DIRECT CONNECTIONS</span>
+            <h1 class="fw-bold mt-2 mb-2">Buyer-Seller Negotiation</h1>
+            <p class="mb-0">
+                Discuss a fair price directly. Every offer stays together with its crop and order details.
+            </p>
+        </div>
+        <div class="negotiation-hero-icon" aria-hidden="true">🤝</div>
+    </header>
+
+    <div class="negotiation-info-strip mb-4">
+        <span aria-hidden="true">💡</span>
+        <p class="mb-0">
+            The other party can counter, accept, or decline the latest offer. Accepting confirms the order and reserves the agreed quantity.
+        </p>
+    </div>
+
+    {% if negotiations %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 fw-bold mb-0">Your conversations</h2>
+            <span class="negotiation-count">{{ negotiations|length }} total</span>
+        </div>
+
+        <div class="d-grid gap-4">
+            {% for item in negotiations %}
+                {% set latest = item.messages[-1] %}
+                {% set can_respond = item.status == 'open' and latest.sender_id != current_user.id %}
+                <article class="negotiation-thread">
+                    <div class="negotiation-thread-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <img class="negotiation-crop-image"
+                                 src="{{ item.crop.image_url }}"
+                                 alt=""
+                                 loading="lazy">
+                            <div>
+                                <span class="negotiation-crop-label">CROP OFFER</span>
+                                <h3 class="h5 fw-bold mb-1">{{ item.crop.name }}</h3>
+                                <p class="small text-muted mb-0">
+                                    {% if current_user.role == 'buyer' %}
+                                        Seller: {{ item.farmer.name }}
+                                    {% else %}
+                                        Buyer: {{ item.buyer.name }}
+                                    {% endif %}
+                                    · {{ item.quantity|round(2) }} {{ item.crop.unit }}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="negotiation-status status-{{ item.status }}">
+                            {% if item.status == 'accepted' %}Agreed
+                            {% elif item.status == 'rejected' %}Declined
+                            {% else %}Awaiting response{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="negotiation-messages">
+                        {% for message in item.messages %}
+                            <div class="negotiation-message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                                <div class="negotiation-message-meta">
+                                    <strong>{{ 'You' if message.sender_id == current_user.id else message.sender.name }}</strong>
+                                    <time datetime="{{ message.created_at.isoformat() }}">
+                                        {{ message.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                    </time>
+                                </div>
+                                <p class="negotiation-message-price">
+                                    ₹{{ "%.2f"|format(message.offer_price) }}
+                                    <small>/ {{ item.crop.unit }}</small>
+                                </p>
+                                {% if message.message %}
+                                    <p class="mb-0">{{ message.message }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if item.status == 'accepted' %}
+                        <div class="negotiation-result accepted-result">
+                            <span aria-hidden="true">✓</span>
+                            <div>
+                                <strong>Deal agreed at ₹{{ "%.2f"|format(item.agreed_price) }} / {{ item.crop.unit }}</strong>
+                                <p class="small mb-0">
+                                    Confirmed order #{{ item.order_id }} for {{ item.quantity|round(2) }} {{ item.crop.unit }}.
+                                </p>
+                            </div>
+                        </div>
+                    {% elif item.status == 'rejected' %}
+                        <div class="negotiation-result declined-result">
+                            This negotiation was declined. You can start a new offer from the crop listing if it is still available.
+                        </div>
+                    {% elif can_respond %}
+                        <div class="negotiation-reply">
+                            <h4 class="h6 fw-bold mb-3">Respond to this offer</h4>
+                            <form method="POST" action="{{ url_for('reply_to_negotiation', negotiation_id=item.id) }}">
+                                {{ reply_form.csrf_token }}
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="offer-price-{{ item.id }}">
+                                            Counter-offer per unit (₹)
+                                        </label>
+                                        <input class="form-control"
+                                               id="offer-price-{{ item.id }}"
+                                               name="offer_price"
+                                               type="number"
+                                               min="0.01"
+                                               step="0.01"
+                                               required>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold" for="offer-message-{{ item.id }}">
+                                            Message <span class="text-muted fw-normal">(optional)</span>
+                                        </label>
+                                        <input class="form-control"
+                                               id="offer-message-{{ item.id }}"
+                                               name="message"
+                                               type="text"
+                                               maxlength="1000"
+                                               placeholder="Share a note with your counter-offer">
+                                    </div>
+                                    <div class="col-12 d-flex flex-wrap gap-2">
+                                        <button class="btn btn-success" type="submit">Send counter-offer</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                {% for action, label, style in [('accept', 'Accept offer', 'btn-success'), ('reject', 'Decline', 'btn-outline-secondary')] %}
+                                    <form method="POST" action="{{ url_for('decide_negotiation', negotiation_id=item.id, action=action) }}">
+                                        {{ reply_form.csrf_token }}
+                                        <button class="btn {{ style }}" type="submit">{{ label }}</button>
+                                    </form>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="negotiation-waiting">
+                            <span class="waiting-pulse" aria-hidden="true"></span>
+                            Waiting for {{ 'the farmer' if current_user.role == 'buyer' else 'the buyer' }} to respond to the latest offer.
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="negotiation-empty">
+            <div class="negotiation-empty-icon" aria-hidden="true">💬</div>
+            <h2 class="h4 fw-bold">No negotiations yet</h2>
+            <p class="text-muted mb-4">
+                {% if current_user.role == 'buyer' %}
+                    Browse crop listings and send a price offer to start a conversation with a farmer.
+                {% else %}
+                    Buyer offers for your crops will appear here. You can reply with a counter-offer or accept the offer.
+                {% endif %}
+            </p>
+            {% if current_user.role == 'buyer' %}
+                <a class="btn btn-success" href="{{ url_for('crop_list') }}">Browse crops</a>
+            {% else %}
+                <a class="btn btn-success" href="{{ url_for('my_crops') }}">View my listings</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

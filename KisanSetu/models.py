@@ -42,6 +42,10 @@ class User(UserMixin, db.Model):
         "Article",
         back_populates="author"
     )
+    sent_negotiation_messages = db.relationship(
+        "NegotiationMessage",
+        back_populates="sender"
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -69,6 +73,7 @@ class Crop(db.Model):
 
     farmer = db.relationship("User", back_populates="crops")
     orders = db.relationship("Order", back_populates="crop")
+    negotiations = db.relationship("Negotiation", back_populates="crop")
 
     @property
     def image_url(self):
@@ -132,6 +137,62 @@ class Order(db.Model):
         "User",
         foreign_keys=[farmer_id],
         back_populates="farmer_orders"
+    )
+
+
+class Negotiation(db.Model):
+    __tablename__ = "negotiations"
+
+    id = db.Column(db.Integer, primary_key=True)
+    crop_id = db.Column(
+        db.Integer, db.ForeignKey("crops.id"), nullable=False, index=True
+    )
+    buyer_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False, index=True
+    )
+    farmer_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False, index=True
+    )
+    quantity = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="open")
+    agreed_price = db.Column(db.Float)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+    crop = db.relationship("Crop", back_populates="negotiations")
+    buyer = db.relationship("User", foreign_keys=[buyer_id])
+    farmer = db.relationship("User", foreign_keys=[farmer_id])
+    messages = db.relationship(
+        "NegotiationMessage",
+        back_populates="negotiation",
+        order_by="NegotiationMessage.created_at",
+        cascade="all, delete-orphan",
+    )
+
+
+class NegotiationMessage(db.Model):
+    __tablename__ = "negotiation_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    negotiation_id = db.Column(
+        db.Integer, db.ForeignKey("negotiations.id"), nullable=False, index=True
+    )
+    sender_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False
+    )
+    offer_price = db.Column(db.Float, nullable=False)
+    message = db.Column(db.String(1000), nullable=False, default="")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    negotiation = db.relationship("Negotiation", back_populates="messages")
+    sender = db.relationship(
+        "User", back_populates="sent_negotiation_messages"
     )
 
 

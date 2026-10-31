@@ -1,6 +1,7 @@
 
 import io
 import os
+from datetime import datetime, timezone
 from functools import wraps
 
 from dotenv import load_dotenv
@@ -26,12 +27,24 @@ from sqlalchemy import or_
 
 from config import Config
 from disease_advisory import CROPS, SYMPTOMS, get_advisory
-from models import db, User, Crop, Order, Scheme, Article, HelpRequest
+from models import (
+    db,
+    User,
+    Crop,
+    Order,
+    Negotiation,
+    NegotiationMessage,
+    Scheme,
+    Article,
+    HelpRequest,
+)
 from forms import (
     RegistrationForm,
     LoginForm,
     CropForm,
     OrderForm,
+    NegotiationOfferForm,
+    NegotiationReplyForm,
     HelpRequestForm,
     SchemeForm,
     ArticleForm,
@@ -335,11 +348,13 @@ def crop_detail(crop_id):
             abort(404)
 
     form = OrderForm()
+    negotiation_form = NegotiationOfferForm()
 
     return render_template(
         "crop_detail.html",
         crop=crop,
         form=form,
+        negotiation_form=negotiation_form,
     )
 
 
@@ -418,10 +433,10 @@ def delete_crop(crop_id):
     if crop.farmer_id != current_user.id:
         abort(403)
 
-    if crop.orders:
+    if crop.orders or crop.negotiations:
         crop.status = "hidden"
         flash(
-            "Crop hidden because it has order history.",
+            "Crop hidden because it has order or negotiation history.",
             "info",
         )
     else:
@@ -500,6 +515,177 @@ def my_orders():
     ).all()
 
     return render_template("my_orders.html", orders=orders)
+
+
+# -------------------- BUYER-SELLER NEGOTIATIONS --------------------
+
+@app.route("/negotiations")
+@role_required("buyer", "farmer")
+def negotiations():
+    if current_user.role == "buyer":
+        conversations = Negotiation.query.filter_by(
+            buyer_id=current_user.id
+        ).order_by(Negotiation.updated_at.desc()).all()
+    else:
+        conversations = Negotiation.query.filter_by(
+            farmer_id=current_user.id
+        ).order_by(Negotiation.updated_at.desc()).all()
+
+    return render_template(
+        "negotiations.html",
+        negotiations=conversations,
+        reply_form=NegotiationReplyForm(),
+    )
+
+
+@app.route("/negotiations/new/<int:crop_id>", methods=["POST"])
+@role_required("buyer")
+def start_negotiation(crop_id):
+    crop = db.get_or_404(Crop, crop_id)
+    form = NegotiationOfferForm()
+
+    if not form.validate_on_submit():
+        flash("Enter a valid quantity and offer price.", "danger")
+        return redirect(url_for("crop_detail", crop_id=crop.id))
+
+    if crop.status != "active" or crop.quantity <= 0:
+        flash("This crop is currently unavailable for negotiation.", "warning")
+        return redirect(url_for("crop_detail", crop_id=crop.id))
+
+    if crop.farmer_id == current_user.id:
+        abort(403)
+
+    if form.quantity.data > crop.quantity:
+        flash("Your offer quantity is greater than the available stock.", "danger")
+        return redirect(url_for("crop_detail", crop_id=crop.id))
+
+    existing = Negotiation.query.filter_by(
+        crop_id=crop.id,
+        buyer_id=current_user.id,
+        status="open",
+    ).first()
+    if existing:
+        flash("You already have an open negotiation for this crop.", "info")
+        return redirect(url_for("negotiations"))
+
+    negotiation = Negotiation(
+        crop_id=crop.id,
+        buyer_id=current_user.id,
+        farmer_id=crop.farmer_id,
+        quantity=form.quantity.data,
+        status="open",
+    )
+    db.session.add(negotiation)
+    db.session.flush()
+    db.session.add(NegotiationMessage(
+        negotiation_id=negotiation.id,
+        sender_id=current_user.id,
+        offer_price=form.offer_price.data,
+        message=(form.message.data or "").strip(),
+    ))
+    db.session.commit()
+
+    flash("Your offer has been sent to the farmer.", "success")
+    return redirect(url_for("negotiations"))
+
+
+@app.route("/negotiations/<int:negotiation_id>/reply", methods=["POST"])
+@role_required("buyer", "farmer")
+def reply_to_negotiation(negotiation_id):
+    negotiation = db.get_or_404(Negotiation, negotiation_id)
+    is_party = current_user.id in (negotiation.buyer_id, negotiation.farmer_id)
+    if not is_party:
+        abort(403)
+
+    if negotiation.status != "open":
+        flash("This negotiation is already closed.", "warning")
+        return redirect(url_for("negotiations"))
+
+    if negotiation.messages[-1].sender_id == current_user.id:
+        flash("Wait for the other party to respond before sending another offer.", "warning")
+        return redirect(url_for("negotiations"))
+
+    form = NegotiationReplyForm()
+    if not form.validate_on_submit():
+        flash("Enter a valid counter-offer price.", "danger")
+        return redirect(url_for("negotiations"))
+
+    if (
+        negotiation.crop.status != "active"
+        or negotiation.quantity > negotiation.crop.quantity
+    ):
+        flash("The requested quantity is no longer available.", "danger")
+        return redirect(url_for("negotiations"))
+
+    db.session.add(NegotiationMessage(
+        negotiation_id=negotiation.id,
+        sender_id=current_user.id,
+        offer_price=form.offer_price.data,
+        message=(form.message.data or "").strip(),
+    ))
+    negotiation.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    flash("Your counter-offer has been sent.", "success")
+    return redirect(url_for("negotiations"))
+
+
+@app.route(
+    "/negotiations/<int:negotiation_id>/<action>",
+    methods=["POST"],
+)
+@role_required("buyer", "farmer")
+def decide_negotiation(negotiation_id, action):
+    if action not in ("accept", "reject"):
+        abort(400)
+
+    negotiation = db.get_or_404(Negotiation, negotiation_id)
+    if current_user.id not in (negotiation.buyer_id, negotiation.farmer_id):
+        abort(403)
+
+    if negotiation.status != "open":
+        flash("This negotiation has already been processed.", "warning")
+        return redirect(url_for("negotiations"))
+
+    if negotiation.messages[-1].sender_id == current_user.id:
+        flash("Only the recipient of the latest offer can respond to it.", "warning")
+        return redirect(url_for("negotiations"))
+
+    if action == "reject":
+        negotiation.status = "rejected"
+        db.session.commit()
+        flash("Negotiation declined.", "info")
+        return redirect(url_for("negotiations"))
+
+    crop = negotiation.crop
+    if crop.status != "active" or negotiation.quantity > crop.quantity:
+        flash("The requested quantity is no longer available.", "danger")
+        return redirect(url_for("negotiations"))
+
+    agreed_price = negotiation.messages[-1].offer_price
+    order = Order(
+        crop_id=crop.id,
+        buyer_id=negotiation.buyer_id,
+        farmer_id=negotiation.farmer_id,
+        quantity=negotiation.quantity,
+        price_per_unit=agreed_price,
+        total_amount=round(negotiation.quantity * agreed_price, 2),
+        status="accepted",
+    )
+    crop.quantity = round(crop.quantity - negotiation.quantity, 3)
+    if crop.quantity <= 0:
+        crop.quantity = 0
+        crop.status = "sold"
+
+    db.session.add(order)
+    negotiation.status = "accepted"
+    negotiation.agreed_price = agreed_price
+    db.session.flush()
+    negotiation.order_id = order.id
+    db.session.commit()
+
+    flash("Offer accepted. The agreed order has been confirmed.", "success")
+    return redirect(url_for("negotiations"))
 
 
 @app.route("/manage-orders")

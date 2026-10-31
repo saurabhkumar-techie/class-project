@@ -1,4 +1,5 @@
 
+import io
 import os
 from functools import wraps
 
@@ -20,9 +21,11 @@ from flask_login import (
     current_user,
 )
 from flask_wtf.csrf import CSRFProtect
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy import or_
 
 from config import Config
+from disease_advisory import CROPS, SYMPTOMS, get_advisory
 from models import db, User, Crop, Order, Scheme, Article, HelpRequest
 from forms import (
     RegistrationForm,
@@ -48,6 +51,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Please log in to continue."
+
+MAX_DISEASE_IMAGE_BYTES = 5 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = MAX_DISEASE_IMAGE_BYTES + 64 * 1024
 
 
 @login_manager.user_loader
@@ -643,6 +649,55 @@ def add_article():
         "articles.html",
         articles=[],
         form=form,
+    )
+
+
+# -------------------- CROP HEALTH ADVISORY --------------------
+
+@app.route("/disease-detector", methods=["GET", "POST"])
+@role_required("farmer")
+def disease_detector():
+    result = None
+    error = None
+    selected_crop = ""
+    selected_symptom = ""
+
+    if request.method == "POST":
+        selected_crop = request.form.get("crop_type", "")
+        selected_symptom = request.form.get("symptom", "")
+        upload = request.files.get("crop_image")
+
+        if selected_crop not in CROPS or selected_symptom not in SYMPTOMS:
+            error = "Please select a supported crop and the closest visible symptom."
+        elif not upload or not upload.filename:
+            error = "Please choose a crop photo to continue."
+        else:
+            image_bytes = upload.stream.read(MAX_DISEASE_IMAGE_BYTES + 1)
+            if len(image_bytes) > MAX_DISEASE_IMAGE_BYTES:
+                error = "The photo must be 5 MB or smaller."
+            else:
+                try:
+                    with Image.open(io.BytesIO(image_bytes)) as image:
+                        if image.format not in {"JPEG", "PNG", "WEBP"}:
+                            error = "Please upload a JPG, PNG, or WEBP photo."
+                        elif image.width * image.height > 20_000_000:
+                            error = "The photo dimensions are too large. Please use a smaller image."
+                        else:
+                            image.verify()
+                except (Image.DecompressionBombError, UnidentifiedImageError, OSError):
+                    error = "That file is not a valid JPG, PNG, or WEBP photo."
+
+            if not error:
+                result = get_advisory(selected_crop, selected_symptom)
+
+    return render_template(
+        "disease_detector.html",
+        crops=CROPS,
+        symptoms=SYMPTOMS,
+        selected_crop=selected_crop,
+        selected_symptom=selected_symptom,
+        result=result,
+        error=error,
     )
 
 

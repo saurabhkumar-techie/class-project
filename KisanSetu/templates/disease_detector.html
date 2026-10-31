@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Health Check | KisanSetu{% endblock %}
+
+{% block extra_css %}
+<style>
+.health-hero {
+    background: linear-gradient(135deg, #e8f6eb, #f3faed);
+    border: 1px solid #d5ecd9;
+    border-radius: 20px;
+}
+.upload-zone {
+    position: relative;
+    border: 2px dashed #198754;
+    border-radius: 14px;
+    background: #f8fdf9;
+    padding: 32px 18px;
+    text-align: center;
+    cursor: pointer;
+}
+.upload-zone.drag-over { background: #e8f6eb; }
+.preview-img {
+    display: none;
+    max-width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+.advice-block {
+    border-left: 4px solid #198754;
+    background: #f8fdf9;
+    border-radius: 8px;
+    padding: 16px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <header class="health-hero p-4 p-md-5 mb-4">
+        <span class="badge bg-success-subtle text-success mb-3">किसान सुविधा</span>
+        <h1 class="fw-bold mb-2">Crop Health Check</h1>
+        <h2 class="h5 text-success mb-3">फसल के लक्षण और शुरुआती सलाह</h2>
+        <p class="text-secondary mb-0">
+            फसल की फोटो अपलोड करें, फसल और दिख रहे लक्षण चुनें। ऐप संभावित कारण और सुरक्षित अगले कदम बताएगा।
+            <strong>यह फोटो से AI रोग पहचान नहीं है</strong>—लक्षणों से मिली सलाह की कृषि विशेषज्ञ से पुष्टि करें।
+        </p>
+    </header>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h5 fw-bold mb-3">📷 फसल की फोटो और लक्षण दें</h3>
+                    <form id="disease-form" method="POST" enctype="multipart/form-data"
+                          action="{{ url_for('disease_detector') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label for="crop_type" class="form-label fw-semibold">फसल चुनें</label>
+                            <select class="form-select" name="crop_type" id="crop_type" required>
+                                <option value="">फसल चुनें</option>
+                                {% for crop_id, crop_name in crops.items() %}
+                                <option value="{{ crop_id }}" {% if selected_crop == crop_id %}selected{% endif %}>
+                                    {{ crop_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="symptom" class="form-label fw-semibold">पौधे में सबसे साफ दिख रहा लक्षण चुनें</label>
+                            <select class="form-select" name="symptom" id="symptom" required>
+                                <option value="">लक्षण चुनें</option>
+                                {% for symptom_id, symptom_name in symptoms.items() %}
+                                <option value="{{ symptom_id }}" {% if selected_symptom == symptom_id %}selected{% endif %}>
+                                    {{ symptom_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">यह चुनाव आपकी दी हुई जानकारी है; ऐप फोटो में रोग की पहचान नहीं करता।</div>
+                        </div>
+
+                        <label for="crop_image" class="form-label fw-semibold">पत्ते या प्रभावित हिस्से की फोटो</label>
+                        <div class="upload-zone mb-2" id="upload-zone">
+                            <input type="file" id="crop_image" name="crop_image"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                   class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+                                   style="cursor:pointer" required>
+                            <span class="fs-1" aria-hidden="true">🌿</span>
+                            <div class="fw-semibold text-success">फोटो चुनें या यहाँ खींचकर छोड़ें</div>
+                            <small class="text-secondary">JPG, PNG या WEBP • अधिकतम 5 MB</small>
+                        </div>
+                        <img id="preview-img" class="preview-img mb-2" alt="चुनी गई फसल की फोटो का पूर्वावलोकन">
+                        <div id="file-error" class="text-danger small mb-2" role="alert"></div>
+                        <div id="selected-file" class="small text-secondary mb-3"></div>
+
+                        <button class="btn btn-success w-100" type="submit" id="analyze-btn">
+                            लक्षणों के आधार पर सलाह देखें
+                        </button>
+                    </form>
+                    <p class="small text-secondary mt-3 mb-0">
+                        फोटो अनुरोध के दौरान जाँची जाती है; ऐप इसे अपने डेटाबेस या uploads फ़ोल्डर में सेव नहीं करता।
+                    </p>
+                </div>
+            </section>
+
+            {% if error %}
+            <div class="alert alert-warning mt-3" role="alert">{{ error }}</div>
+            {% endif %}
+
+            {% if result %}
+            <section class="card border-0 shadow-sm mt-4" aria-live="polite">
+                <div class="card-header bg-success text-white p-3">
+                    <div class="small">शुरुआती सलाह — पक्की बीमारी की पहचान नहीं</div>
+                    <h3 class="h5 fw-bold mb-0">{{ result.crop }}</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="advice-block mb-3">
+                        <h4 class="h6 fw-bold">आपके चुने हुए लक्षण</h4>
+                        <p class="mb-0">{{ result.symptom }}</p>
+                    </div>
+                    <div class="advice-block mb-3">
+                        <h4 class="h6 fw-bold">संभावित कारण</h4>
+                        <p class="mb-1">{{ result.possible_cause }}</p>
+                        <p class="mb-0 text-secondary">{{ result.cause_hi }}</p>
+                    </div>
+                    <div class="advice-block mb-3">
+                        <h4 class="h6 fw-bold">अभी क्या करें</h4>
+                        <ul class="mb-0">
+                            {% for step in result.steps %}
+                            <li class="mb-1">{{ step }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="advice-block mb-3 border-warning">
+                        <h4 class="h6 fw-bold">कीटनाशक / दवा के बारे में</h4>
+                        <p class="mb-1">{{ result.pesticide }}</p>
+                        <p class="mb-0 text-secondary">{{ result.pesticide_hi }}</p>
+                    </div>
+                    <div class="alert alert-warning small mb-3">
+                        गलत दवा फसल, लाभकारी कीट और स्वास्थ्य को नुकसान पहुँचा सकती है। दवा का नाम/मात्रा तय करने से पहले स्थानीय कृषि विभाग या KVK से पुष्टि करें। लेबल, सुरक्षा उपकरण और कटाई-पूर्व प्रतीक्षा अवधि का पालन करें।
+                    </div>
+                    <a class="btn btn-outline-success" href="{{ url_for('help_requests') }}">
+                        विशेषज्ञ से सहायता माँगें
+                    </a>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+        <aside class="col-lg-5">
+            <section class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h6 fw-bold">📸 बेहतर फोटो के लिए</h3>
+                    <ul class="text-secondary small mb-0">
+                        <li class="mb-2">प्राकृतिक रोशनी में साफ, धुंधली न होने वाली फोटो लें।</li>
+                        <li class="mb-2">प्रभावित हिस्से के साथ पत्ते की पूरी आकृति भी दिखाएँ।</li>
+                        <li class="mb-2">संभव हो तो पत्ते के आगे और पीछे की अलग-अलग फोटो लें।</li>
+                        <li>कीट या अंडे दिखें तो उनकी स्पष्ट नज़दीकी फोटो भी रखें।</li>
+                    </ul>
+                </div>
+            </section>
+            <div class="alert alert-info small mt-3">
+                लक्षण कई कारणों से हो सकते हैं। यह सुविधा फोटो का स्वचालित विश्लेषण या विशेषज्ञ की पुष्टि नहीं करती।
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('crop_image');
+const preview = document.getElementById('preview-img');
+const fileLabel = document.getElementById('selected-file');
+const fileError = document.getElementById('file-error');
+const form = document.getElementById('disease-form');
+const analyzeButton = document.getElementById('analyze-btn');
+const maxBytes = 5 * 1024 * 1024;
+const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+let previewUrl = null;
+
+function showSelectedFile(file) {
+    fileError.textContent = '';
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    preview.removeAttribute('src');
+    preview.style.display = 'none';
+    fileLabel.textContent = '';
+
+    if (!file) return;
+    if (!allowedTypes.includes(file.type) || file.size > maxBytes) {
+        fileError.textContent = file.size > maxBytes
+            ? 'फोटो 5 MB से छोटी होनी चाहिए।'
+            : 'केवल JPG, PNG या WEBP फोटो चुनें।';
+        fileInput.value = '';
+        return;
+    }
+
+    previewUrl = URL.createObjectURL(file);
+    preview.src = previewUrl;
+    preview.style.display = 'block';
+    fileLabel.textContent = file.name;
+}
+
+fileInput.addEventListener('change', () => showSelectedFile(fileInput.files[0]));
+uploadZone.addEventListener('dragover', event => {
+    event.preventDefault();
+    uploadZone.classList.add('drag-over');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', event => {
+    event.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = event.dataTransfer.files[0];
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    fileInput.files = transfer.files;
+    showSelectedFile(file);
+});
+form.addEventListener('submit', () => {
+    analyzeButton.disabled = true;
+    analyzeButton.textContent = 'सलाह तैयार हो रही है…';
+});
+window.addEventListener('beforeunload', () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+});
+</script>
+{% endblock %}
